@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using MVCSite.Models;
-using Features.Extensions;
-using Features.Enums;
+using MVCSite.Features.Extensions;
+using MVCSite.Features.Enums;
 using System.Text;
 
-namespace Features.MariaDB;
+namespace MVCSite.Features.MariaDB;
 
 public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext
 {

@@ -1,4 +1,4 @@
-namespace Features.Enums;
+namespace MVCSite.Features.Enums;
 public enum Role
 {
     Admin,

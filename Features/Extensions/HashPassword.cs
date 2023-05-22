@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Features.Extensions;
+namespace MVCSite.Features.Extensions;
 public static class HashPassword
 {
     public static int GenerateSaltForPassword()

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Features.Enums;
+using MVCSite.Features.Enums;
 namespace MVCSite.Models;
 [PrimaryKey(nameof(Login))]
 public class UserIdentityDataModel

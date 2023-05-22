@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-using Features.MariaDB;
+using MVCSite.Features.MariaDB;
 
 
 var builder = WebApplication.CreateBuilder(args);
