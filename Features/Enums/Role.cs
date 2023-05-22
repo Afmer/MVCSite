@@ -1,5 +1,5 @@
 namespace Features.Enums;
-enum Role
+public enum Role
 {
     Admin,
     Moderator,
