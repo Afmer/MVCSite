@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+namespace Features.MariaDB;
 
 public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext
 {

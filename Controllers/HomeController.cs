@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MVCSite.Models;
+using Features.MariaDB;
 
 namespace MVCSite.Controllers;
 
