@@ -31,10 +31,10 @@ public static class HashPassword
     }
 
 // проверка хешированного пароля и введенного для авторизации
-    public static bool IsPasswordValid(string passwordToValidate, int salt, byte[] correctPasswordHash)
+    public static bool IsPasswordValid(string passwordToValidate, int salt, string correctPasswordHash)
     {
         byte[] hashedPassword = UTF8Encoding.UTF8.GetBytes(ComputePasswordHash(passwordToValidate, salt));
 
-        return hashedPassword.SequenceEqual(correctPasswordHash);
+        return hashedPassword.SequenceEqual(UTF8Encoding.UTF8.GetBytes(correctPasswordHash));
     }
 }
