@@ -12,7 +12,7 @@ public static class HashPassword
     }
 
 // хеширование
-    public static byte[] ComputePasswordHash(string password, int salt)
+    public static string ComputePasswordHash(string password, int salt)
     {
         byte[] saltBytes = new byte[4];
         saltBytes[0] = (byte)(salt >> 24);
@@ -27,13 +27,13 @@ public static class HashPassword
         System.Buffer.BlockCopy(saltBytes, 0, preHashed, passwordBytes.Length, saltBytes.Length);
 
         SHA1 sha1 = SHA1.Create();
-        return sha1.ComputeHash(preHashed);
+        return Convert.ToBase64String(sha1.ComputeHash(preHashed));
     }
 
 // проверка хешированного пароля и введенного для авторизации
     public static bool IsPasswordValid(string passwordToValidate, int salt, byte[] correctPasswordHash)
     {
-        byte[] hashedPassword = ComputePasswordHash(passwordToValidate, salt);
+        byte[] hashedPassword = UTF8Encoding.UTF8.GetBytes(ComputePasswordHash(passwordToValidate, salt));
 
         return hashedPassword.SequenceEqual(correctPasswordHash);
     }

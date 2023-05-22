@@ -17,7 +17,7 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserIdentityDataModel>().HasData(
-            new UserIdentityDataModel("admin", Encoding.ASCII.GetString(HashPassword.ComputePasswordHash("admin", 785433)), 785433, Role.Admin)
+            new UserIdentityDataModel("admin", HashPassword.ComputePasswordHash("admin", 785433), 785433, Role.Admin)
         );
     }
 }
