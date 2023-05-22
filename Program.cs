@@ -10,8 +10,13 @@ using MVCSite.Features.MariaDB;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Identity/Login";
+        options.AccessDeniedPath = "/accessdenied";
+    });
 builder.Services.AddControllersWithViews();
-builder.Services.AddAuthentication("Cookie").AddCookie();
 builder.Services.AddAuthorization();
 builder.Services.AddDbContextPool<MariaDbContext>(options => options
         .UseMySql(
@@ -21,6 +26,15 @@ builder.Services.AddDbContextPool<MariaDbContext>(options => options
 );
 
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();   // добавление middleware авторизации 
+
+app.MapGet("/accessdenied", async (HttpContext context) =>
+{
+    context.Response.StatusCode = 403;
+    await context.Response.WriteAsync("Access Denied");
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
