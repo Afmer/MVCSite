@@ -3,10 +3,11 @@ using MVCSite.Models;
 using MVCSite.Features.Extensions;
 using MVCSite.Features.Enums;
 using System.Text;
+using MVCSite.Interfaces;
 
 namespace MVCSite.Features.MariaDB;
 
-public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext
+public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, IDBContext
 {
     public DbSet<UserIdentityDataModel> UserIdentity {get; set;} = null!;
     public MariaDbContext(DbContextOptions<MariaDbContext> options)
