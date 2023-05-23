@@ -27,7 +27,7 @@ public static class HashPassword
         System.Buffer.BlockCopy(saltBytes, 0, preHashed, passwordBytes.Length, saltBytes.Length);
 
         SHA1 sha1 = SHA1.Create();
-        return Convert.ToBase64String(sha1.ComputeHash(preHashed));
+        return BitConverter.ToString(sha1.ComputeHash(preHashed)).Replace("-", "").ToLower();
     }
 
 // проверка хешированного пароля и введенного для авторизации
