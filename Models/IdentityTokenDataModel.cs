@@ -7,6 +7,7 @@ public class IdentityTokenDataModel
 {
     [MaxLength(100)]
     public string IdentityToken {get; set;}
+    [MaxLength(20)]
     public string Login {get; set;}
     public DateTime DateUpdate {get; set;}
     public IdentityTokenDataModel(string identityToken, string login)
