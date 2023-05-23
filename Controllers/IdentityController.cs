@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using MVCSite.Features.MariaDB;
 using MVCSite.Features.Extensions;
+using MVCSite.Interfaces;
+
 namespace MVCSite.Controllers;
 public class IdentityController : Controller
 {
     private readonly ILogger<IdentityController> _logger;
-    private readonly MariaDbContext _db;
-    public IdentityController(ILogger<IdentityController> logger, MariaDbContext db)
+    private readonly IDBContext _db;
+    public IdentityController(ILogger<IdentityController> logger, IDBContext db)
     {
         _logger = logger;
         _db = db;

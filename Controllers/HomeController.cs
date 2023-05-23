@@ -2,15 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using MVCSite.Models;
 using MVCSite.Features.MariaDB;
+using MVCSite.Interfaces;
 
 namespace MVCSite.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly MariaDbContext _db;
+    private readonly IDBContext _db;
 
-    public HomeController(ILogger<HomeController> logger, MariaDbContext db)
+    public HomeController(ILogger<HomeController> logger, IDBContext db)
     {
         _logger = logger;
         _db = db;
