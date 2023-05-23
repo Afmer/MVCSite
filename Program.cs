@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using MVCSite.Features.MariaDB;
-
+using MVCSite.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -24,6 +24,7 @@ builder.Services.AddDbContextPool<MariaDbContext>(options => options
             ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MariaDbConnectionString"))
         )
 );
+builder.Services.AddTransient<IDBContext, MariaDbContext>();
 
 var app = builder.Build();
 
