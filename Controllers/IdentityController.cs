@@ -28,13 +28,14 @@ public class IdentityController : Controller
         var token = IdentityToken.Generate();
         _db.IdentityTokens.Add(new Models.IdentityTokenDataModel(token, login){DateUpdate = DateTime.Now});
         await _db.SaveChangesAsync();
-        var claims = new List<Claim> { new Claim(ClaimTypes.Name, token) };
+        var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
         ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
         await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity));
         return Results.Redirect("~/Home/Index");
     }
-    public IResult Logout()
+    public async Task<IResult> Logout()
     {
+        await AuthenticationHttpContextExtensions.SignOutAsync(HttpContext.Request.HttpContext);
         return Results.Redirect("~/Identity/Login");
     }
 }
