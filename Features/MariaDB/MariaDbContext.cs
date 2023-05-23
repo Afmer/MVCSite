@@ -10,6 +10,8 @@ namespace MVCSite.Features.MariaDB;
 public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, IDBContext
 {
     public DbSet<UserIdentityDataModel> UserIdentity {get; set;} = null!;
+
+    public DbSet<IdentityTokenDataModel> IdentityTokens {get; set;} = null!;
     public MariaDbContext(DbContextOptions<MariaDbContext> options)
         : base(options)
     {

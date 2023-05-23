@@ -5,4 +5,5 @@ namespace MVCSite.Interfaces;
 public interface IDBContext
 {
         public DbSet<UserIdentityDataModel> UserIdentity {get;}
+        public DbSet<IdentityTokenDataModel> IdentityTokens {get;}
 }
