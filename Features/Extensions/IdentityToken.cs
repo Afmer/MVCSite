@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace MVCSite.Features.Extensions;
 public static class IdentityToken
 {

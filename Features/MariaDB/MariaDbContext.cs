@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using MVCSite.Models;
 using MVCSite.Features.Extensions;
 using MVCSite.Features.Enums;
-using System.Text;
 using MVCSite.Interfaces;
 
 namespace MVCSite.Features.MariaDB;
