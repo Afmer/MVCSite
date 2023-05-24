@@ -7,6 +7,9 @@ using Pomelo.EntityFrameworkCore.MySql;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using MVCSite.Features.MariaDB;
 using MVCSite.Interfaces;
+using MVCSite.Features.AuthorizationRequirement;
+using MVCSite.Features.Extensions;
+using MVCSite.Features.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -25,6 +28,11 @@ builder.Services.AddDbContextPool<MariaDbContext>(options => options
         )
 );
 builder.Services.AddTransient<IDBContext, MariaDbContext>();
+builder.Services.AddTransient<IAuthorizationHandler, RoleHierarсhyHandler>();
+builder.Services.AddAuthorization(opts => 
+{
+    opts.AddPolicy(Constant.AdminHierarchy, policy => policy.Requirements.Add(new RoleHierarсhyRequirement(Role.Admin)));
+});
 
 var app = builder.Build();
 
