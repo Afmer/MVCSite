@@ -22,5 +22,11 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
         modelBuilder.Entity<UserIdentityDataModel>().HasData(
             new UserIdentityDataModel("admin", HashPassword.ComputePasswordHash("admin", 785433), 785433, Role.Admin)
         );
+        modelBuilder.Entity<UserIdentityDataModel>().HasData(
+            new UserIdentityDataModel("moderator", HashPassword.ComputePasswordHash("moderator", 785433), 785433, Role.Moderator)
+        );
+        modelBuilder.Entity<UserIdentityDataModel>().HasData(
+            new UserIdentityDataModel("user", HashPassword.ComputePasswordHash("user", 785433), 785433, Role.User)
+        );
     }
 }
