@@ -6,17 +6,20 @@ using MVCSite.Interfaces;
 using MVCSite.Features.AuthorizationRequirement;
 using MVCSite.Features.Extensions;
 using MVCSite.Features.Enums;
+using MVCSite.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
+//builder.Services.ConfigureApplicationCookie(options => options.EventsType = typeof(CustomCookieAuthEvents));
+builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Identity/Login";
         options.AccessDeniedPath = "/accessdenied";
+        options.EventsType = typeof(CustomCookieAuthEvents);
     });
-builder.Services.AddControllersWithViews();
-builder.Services.AddAuthorization();
+builder.Services.AddScoped<CustomCookieAuthEvents>();
 builder.Services.AddDbContextPool<MariaDbContext>(options => options
         .UseMySql(
             builder.Configuration.GetConnectionString("MariaDbConnectionString"),
@@ -29,7 +32,6 @@ builder.Services.AddAuthorization(opts =>
 {
     opts.AddPolicy(Constant.AdminHierarchy, policy => policy.Requirements.Add(new RoleHierarсhyRequirement(Role.Admin)));
 });
-
 var app = builder.Build();
 
 app.UseAuthentication();
