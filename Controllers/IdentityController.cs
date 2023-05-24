@@ -17,6 +17,12 @@ public class IdentityController : Controller
     [HttpGet]
     public IActionResult Login()
     {
+        if(HttpContext.User.Identity != null)
+        {
+            if(HttpContext.User.Identity.IsAuthenticated)
+                return LocalRedirect("~/Home/Index");
+        }
+        else throw new Exception("User is null");
         return View();
     }
     [HttpPost]
@@ -30,7 +36,11 @@ public class IdentityController : Controller
         await _db.SaveChangesAsync();
         var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
         ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity));
+        var authProperties = new AuthenticationProperties
+        {
+            ExpiresUtc = DateTimeOffset.UtcNow.AddSeconds(10)
+        };
+        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), authProperties);
         return Results.Redirect("~/Home/Index");
     }
     public async Task<IResult> Logout()
