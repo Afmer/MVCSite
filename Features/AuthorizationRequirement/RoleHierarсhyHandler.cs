@@ -9,7 +9,15 @@ public class RoleHierarсhyHandler : AuthorizationHandler<RoleHierarсhyRequirem
     protected IDBContext _db;
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleHierarсhyRequirement requirement)
     {
-        var token = context.User.FindFirst(c => c.Type == Constant.IdentityToken);
+        var claim = context.User.FindFirst(c => c.Type == Constant.IdentityToken);
+        string token = null!;
+        if(claim != null)
+            token = claim.Value;
+        else
+        {
+            context.Fail();
+            return Task.CompletedTask;
+        }
         if(token != null)
         {
             var tokenRecord = _db.IdentityTokens.Find(token);
@@ -18,7 +26,7 @@ public class RoleHierarсhyHandler : AuthorizationHandler<RoleHierarсhyRequirem
                 var user = _db.UserIdentity.Find(tokenRecord.Login);
                 var validUser = user ?? throw new Exception("the user was not found using the token");
                 Role role = validUser.Role;
-                if(role >= requirement.Role)
+                if(role <= requirement.Role)
                     context.Succeed(requirement);
                 else
                     context.Fail();
