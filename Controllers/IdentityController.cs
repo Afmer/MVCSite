@@ -36,11 +36,7 @@ public class IdentityController : Controller
         await _db.SaveChangesAsync();
         var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
         ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-        var authProperties = new AuthenticationProperties
-        {
-            ExpiresUtc = DateTimeOffset.UtcNow.AddSeconds(10)
-        };
-        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), authProperties);
+        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity));
         return Results.Redirect("~/Home/Index");
     }
     public async Task<IResult> Logout()
