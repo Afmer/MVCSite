@@ -32,7 +32,7 @@ public class IdentityController : Controller
         if (user is null) return Results.Unauthorized();
         if(!HashPassword.IsPasswordValid(password, user.Salt, user.PasswordHash)) return Results.Unauthorized();
         var token = IdentityToken.Generate();
-        _db.IdentityTokens.Add(new Models.IdentityTokenDataModel(token, login){DateUpdate = DateTime.Now});
+        _db.IdentityTokens.Add(new Models.IdentityTokenDataModel(token, login){DateUpdate = DateTime.UtcNow});
         await _db.SaveChangesAsync();
         var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
         ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
