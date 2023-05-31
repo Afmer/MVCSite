@@ -1,0 +1,45 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+version: '3.4'
+
+services:
+  mvcsite:
+    image: mvcsite
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 5000:80
+    networks:
+      bridge:
+       ipv4_address: 172.10.1.5
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: red_alien
+    ports:
+      - 3310:3306
+    volumes:
+      - ./InitMariaDB.sql:/docker-entrypoint-initdb.d/InitMariaDB.sql
+    networks:
+      bridge:
+       ipv4_address: 172.10.1.4
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      bridge:
+       ipv4_address: 172.10.1.6
+networks:
+  bridge:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.10.0.0/16
+
