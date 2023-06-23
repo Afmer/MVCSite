@@ -3,16 +3,23 @@ using MVCSite.Features.Extensions;
 using MVCSite.Interfaces;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVCSite.Controllers;
 public class IdentityController : Controller
 {
     private readonly ILogger<IdentityController> _logger;
     private readonly IDBContext _db;
-    public IdentityController(ILogger<IdentityController> logger, IDBContext db)
+    private readonly AuthLifeTimeConfiguration _authLifeTime;
+    public IdentityController(ILogger<IdentityController> logger, IDBContext db, IConfiguration configuration)
     {
         _logger = logger;
         _db = db;
+        var tempLifeTime = configuration.GetSection("AuthLifeTime").Get<AuthLifeTimeConfiguration>();
+        if(tempLifeTime != null)
+            _authLifeTime = tempLifeTime;
+        else 
+            throw new Exception("AuthLifeTime didn't set");
     }
     [HttpGet]
     public IActionResult Login()
@@ -36,7 +43,10 @@ public class IdentityController : Controller
         await _db.SaveChangesAsync();
         var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
         ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity));
+        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+        {
+            ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
+        });
         return Results.Redirect("~/Home/Index");
     }
     public async Task<IResult> Logout()
