@@ -6,5 +6,20 @@
             "savePath": "/wwwroot/css"
         }
     ],
-    "dotnet-test-explorer.testProjectPath": "../MVCSite.Tests/MVCSite.Tests.csproj"
+    "dotnet-test-explorer.testProjectPath": "../MVCSite.Tests/MVCSite.Tests.csproj",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "admin",
+            "database": "TestDB",
+            "username": "admin",
+            "password": "red_alien"
+        }
+    ]
 }
