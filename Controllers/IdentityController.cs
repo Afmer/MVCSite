@@ -4,6 +4,7 @@ using MVCSite.Interfaces;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using MVCSite.Features.Configurations;
 
 namespace MVCSite.Controllers;
 public class IdentityController : Controller

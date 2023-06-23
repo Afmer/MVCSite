@@ -1,3 +1,4 @@
+namespace MVCSite.Features.Configurations;
 public class AuthLifeTimeConfiguration
 {
     public int Days {get; set;}
