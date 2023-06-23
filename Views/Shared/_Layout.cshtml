@@ -1,4 +1,5 @@
 ﻿<!DOCTYPE HTML>
+@using Microsoft.AspNetCore.Mvc.RazorPages
 <html>
 	<head>
 		<title>Editorial by HTML5 UP</title>
@@ -17,7 +18,21 @@
 
 							<!-- Header -->
 								<header id="header">
-									<a href="index.html" class="logo"><strong>Editorial</strong> by HTML5 UP</a>
+									<a href="~/Home/Index" class="logo"><strong>Editorial</strong> by HTML5 UP</a>
+									<ul class="actions">
+										@if(Context.User.Identity != null)
+										{
+											if(!Context.User.Identity.IsAuthenticated)
+											{
+												<li><a href="~/Identity/Login" class="button primary">Войти</a></li>
+												<li><a href="~/Identity/Register" class="button">Регистрация</a></li>
+											}
+											else
+											{
+												<li><a href="~/Identity/Logout" class="button">Выйти</a></li>
+											}
+										}
+									</ul>
 								</header>
 
 							<!-- Banner -->
