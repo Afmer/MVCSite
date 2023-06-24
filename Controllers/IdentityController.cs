@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using MVCSite.Features.Configurations;
 using MVCSite.Models;
+using MVCSite.Features.Enums;
 
 namespace MVCSite.Controllers;
 public class IdentityController : Controller
@@ -71,7 +72,31 @@ public class IdentityController : Controller
     public async Task<IActionResult> Register(RegisterModel model)
     {
         if(model.Login == null || model.Password == null || model.Email == null)
+        {
+            ViewBag.ErrorMessage = "Не все обязательные поля заполнены";
             return View();
+        }
+        var user = _db.UserInformation.Find(model.Login);
+        if (user != null)
+        {
+            ViewBag.ErrorMessage = "Пользователь с таким логином уже существует";
+            return View();
+        }
+
+        var salt = HashPassword.GenerateSaltForPassword();
+        var hash = HashPassword.ComputePasswordHash(model.Password, salt);
+        var userDataModel = new UserInformationDataModel(model.Login, hash, salt, Role.User, model.Email);
+        _db.UserInformation.Add(userDataModel);
+        var token = IdentityToken.Generate();
+        _db.IdentityTokens.Add(new Models.IdentityTokenDataModel(token, model.Login){DateUpdate = DateTime.UtcNow});
+        await _db.SaveChangesAsync();
+
+        var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
+        ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+        {
+            ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
+        });
         return Redirect("~/Home/Index");
     }
 }

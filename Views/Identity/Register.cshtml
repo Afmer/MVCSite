@@ -1,5 +1,13 @@
+@{
+    string errorMessage = "";
+    if(ViewBag.ErrorMessage != null)
+        errorMessage = ViewBag.ErrorMessage;
+    else
+        errorMessage = "";
+}
 <div class="col-6 col-12-medium">
 <h3>Регистрация</h3>
+<font color="red">@errorMessage</font>
 <form method="post">
     <div class="row gtr-uniform">
         <div class="col-6 col-12-xsmall">
