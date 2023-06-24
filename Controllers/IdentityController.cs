@@ -37,7 +37,7 @@ public class IdentityController : Controller
     [HttpPost]
     public async Task<IResult> Login(string login, string password)
     {
-        var user = _db.UserIdentity.Find(login);
+        var user = _db.UserInformation.Find(login);
         if (user is null) return Results.Unauthorized();
         if(!HashPassword.IsPasswordValid(password, user.Salt, user.PasswordHash)) return Results.Unauthorized();
         var token = IdentityToken.Generate();
@@ -72,7 +72,6 @@ public class IdentityController : Controller
     {
         if(model.Login == null || model.Password == null || model.Email == null)
             return View();
-        
         return Redirect("~/Home/Index");
     }
 }
