@@ -7,6 +7,7 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
 {
     private Timer _timer = null!;
     private readonly AuthLifeTimeConfiguration _authLifeTime;
+    private readonly CheckIdentityTimerConfiguration _timerConfiguration;
     private IDBContext _db;
     public void Dispose()
     {
@@ -15,7 +16,8 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _timer = new Timer(ScheduledMethod, null, TimeSpan.Zero, TimeSpan.FromSeconds(5)); // Расписание вызова метода
+        var timer = new TimeSpan(_timerConfiguration.Days, _timerConfiguration.Hours, _timerConfiguration.Minutes, _timerConfiguration.Seconds);
+        _timer = new Timer(ScheduledMethod, null, TimeSpan.Zero, timer); // Расписание вызова метода
 
         return Task.CompletedTask;
     }
@@ -46,5 +48,10 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
             _authLifeTime = tempLifeTime;
         else 
             throw new Exception("AuthLifeTime didn't set");
+        var tempTimer = configuration.GetSection("CheckIdentityTokensTimer").Get<CheckIdentityTimerConfiguration>();
+        if(tempTimer != null)
+            _timerConfiguration = tempTimer;
+        else
+            throw new Exception("CheckIdentityTokensTimer didn't set");
     }
 }
