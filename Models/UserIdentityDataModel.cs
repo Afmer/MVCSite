@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MVCSite.Features.Enums;
 namespace MVCSite.Models;
 [PrimaryKey(nameof(Login))]
-public class UserIdentityDataModel
+public class UserInformationDataModel
 {
     [MaxLength(20)]
     public string Login {get; set;}
@@ -11,11 +11,14 @@ public class UserIdentityDataModel
     public string PasswordHash {get; set;}
     public int Salt {get; set;}
     public Role Role {get; set;}
-    public UserIdentityDataModel(string login, string passwordHash, int salt, Role role)
+    [EmailAddress]
+    public string Email {get; set;}
+    public UserInformationDataModel(string login, string passwordHash, int salt, Role role, string email)
     {
         Login = login;
         PasswordHash = passwordHash;
         Salt = salt;
         Role = role;
+        Email = email;
     }
 }
