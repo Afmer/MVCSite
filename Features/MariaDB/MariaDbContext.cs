@@ -19,13 +19,13 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserInformationDataModel>().HasData(
-            new UserInformationDataModel("admin", HashPassword.ComputePasswordHash("admin", 785433), 785433, Role.Admin, null!)
+            new UserInformationDataModel("admin", HashPassword.ComputePasswordHash("admin", 785433), 785433, Role.Admin, "")
         );
         modelBuilder.Entity<UserInformationDataModel>().HasData(
-            new UserInformationDataModel("moderator", HashPassword.ComputePasswordHash("moderator", 785433), 785433, Role.Moderator, null!)
+            new UserInformationDataModel("moderator", HashPassword.ComputePasswordHash("moderator", 785433), 785433, Role.Moderator, "")
         );
         modelBuilder.Entity<UserInformationDataModel>().HasData(
-            new UserInformationDataModel("user", HashPassword.ComputePasswordHash("user", 785433), 785433, Role.User, null!)
+            new UserInformationDataModel("user", HashPassword.ComputePasswordHash("user", 785433), 785433, Role.User, "")
         );
     }
 }
