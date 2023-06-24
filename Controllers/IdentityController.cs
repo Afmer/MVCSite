@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using MVCSite.Features.Configurations;
+using MVCSite.Models;
 
 namespace MVCSite.Controllers;
 public class IdentityController : Controller
@@ -54,5 +55,24 @@ public class IdentityController : Controller
     {
         await AuthenticationHttpContextExtensions.SignOutAsync(HttpContext.Request.HttpContext);
         return Results.Redirect("~/Identity/Login");
+    }
+    [HttpGet]
+    public IActionResult Register()
+    {
+        if(HttpContext.User.Identity != null)
+        {
+            if(HttpContext.User.Identity.IsAuthenticated)
+                return LocalRedirect("~/Home/Index");
+        }
+        else throw new Exception("User is null");
+        return View();
+    }
+    [HttpPost]
+    public async Task<IActionResult> Register(RegisterModel model)
+    {
+        if(model.Login == null || model.Password == null || model.Email == null)
+            return View();
+        
+        return Redirect("~/Home/Index");
     }
 }
