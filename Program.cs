@@ -7,6 +7,7 @@ using MVCSite.Features.AuthorizationRequirement;
 using MVCSite.Features.Extensions;
 using MVCSite.Features.Enums;
 using MVCSite.Features;
+using MVCSite.Features.HostedServices;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -32,6 +33,7 @@ builder.Services.AddAuthorization(opts =>
 {
     opts.AddPolicy(Constant.AdminHierarchy, policy => policy.Requirements.Add(new RoleHierarсhyRequirement(Role.Admin)));
 });
+builder.Services.AddHostedService<IdentityTokenLifeTimeService>();
 var app = builder.Build();
 
 app.UseAuthentication();
