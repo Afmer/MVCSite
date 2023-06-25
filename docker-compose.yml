@@ -17,7 +17,7 @@ services:
       bridge:
        ipv4_address: 172.10.1.5
   db:
-    image: mariadb
+    image: mariadb:10.9.5
     restart: always
     environment:
       - MARIADB_ROOT_PASSWORD=red_alien
