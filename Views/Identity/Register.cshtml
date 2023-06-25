@@ -5,29 +5,31 @@
     else
         errorMessage = "";
 }
-<div class="col-6 col-12-medium">
-<h3>Регистрация</h3>
-<font color="red">@errorMessage</font>
-<form method="post">
-    <div class="row gtr-uniform">
-        <div class="col-6 col-12-xsmall">
-            <input type="text" name="Login" value="" placeholder="Логин" />
+<section id="banner">
+    <div class="col-6 col-12-medium">
+    <h3>Регистрация</h3>
+    <font color="red">@errorMessage</font>
+    <form method="post">
+        <div class="row gtr-uniform">
+            <div class="col-6 col-12-xsmall">
+                <input type="text" name="Login" value="" placeholder="Логин" />
+            </div>
+            <div class="col-6 col-12-xsmall"></div>
+            <div class="col-6 col-12-xsmall">
+                <input type="password" name="Password" value="" placeholder="Пароль" />
+            </div>
+            <div class="col-6 col-12-xsmall"></div>
+            <div class="col-6 col-12-xsmall">
+                <input type="email" name="Email" value="" placeholder="Почта" />
+            </div>
+            <!-- Break -->
+            <!-- Break -->
+            <div class="col-12">
+                <ul class="actions">
+                    <li><input type="submit" value="Зарегистрироваться" class="primary" /></li>
+                </ul>
+            </div>
         </div>
-        <div class="col-6 col-12-xsmall"></div>
-        <div class="col-6 col-12-xsmall">
-            <input type="password" name="Password" value="" placeholder="Пароль" />
-        </div>
-        <div class="col-6 col-12-xsmall"></div>
-        <div class="col-6 col-12-xsmall">
-            <input type="email" name="Email" value="" placeholder="Почта" />
-        </div>
-        <!-- Break -->
-        <!-- Break -->
-        <div class="col-12">
-            <ul class="actions">
-                <li><input type="submit" value="Зарегистрироваться" class="primary" /></li>
-            </ul>
-        </div>
+    </form>
     </div>
-</form>
-</div>
+</section>
