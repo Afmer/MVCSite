@@ -8,6 +8,9 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - 5000:80
     networks:
@@ -17,11 +20,16 @@ services:
     image: mariadb
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: red_alien
+      - MARIADB_ROOT_PASSWORD=red_alien
     ports:
       - 3310:3306
     volumes:
       - ./InitMariaDB.sql:/docker-entrypoint-initdb.d/InitMariaDB.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${MARIADB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       bridge:
        ipv4_address: 172.10.1.4
