@@ -11,6 +11,10 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
     public DbSet<UserInformationDataModel> UserInformation {get; set;} = null!;
 
     public DbSet<IdentityTokenDataModel> IdentityTokens {get; set;} = null!;
+
+    public DbSet<RecipeImageInfoDataModel> RecipeImages {get; set;} = null!;
+
+    public DbSet<RecipeDataModel> Recipes {get; set;} = null!;
     public MariaDbContext(DbContextOptions<MariaDbContext> options)
         : base(options)
     {
@@ -27,5 +31,10 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
         modelBuilder.Entity<UserInformationDataModel>().HasData(
             new UserInformationDataModel("user", HashPassword.ComputePasswordHash("user", 785433), 785433, Role.User, "")
         );
+        modelBuilder.Entity<RecipeImageInfoDataModel>()
+            .HasOne(e => e.Recipe)
+            .WithMany()
+            .HasForeignKey(e => e.RecipeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
