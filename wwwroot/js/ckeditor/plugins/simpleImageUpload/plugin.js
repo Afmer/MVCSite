@@ -1,4 +1,5 @@
 CKEDITOR.plugins.add( 'simpleImageUpload', {
+    icons: 'simage',
     init: function( editor ) {
         var fileDialog = $('<input type="file">');
         
@@ -21,8 +22,8 @@ CKEDITOR.plugins.add( 'simpleImageUpload', {
 			});
 
         })
-        editor.ui.addButton( 'Image', {
-            label: 'Insert Image',
+        editor.ui.addButton( 'SImage', {
+            label: 'Вставить изображение',
             command: 'openDialog',
             toolbar: 'insert'
         });
