@@ -1,15 +1,15 @@
 <section>
     <script src ="~/js/ckeditor/ckeditor.js"></script>
-    @using (Html.BeginForm("Index", "Recipe", FormMethod.Post))
+    @using (Html.BeginForm("Edit", "Recipe", FormMethod.Post))
     {
         <div>
-            <textarea id = "content1" name="content1">this</textarea>
+            <textarea id = "content" name="content">this</textarea>
         </div>
         <div>
             <input type="submit" value="Отправить">
         </div>
     }
     <script>
-        CKEDITOR.replace('content1');
+        CKEDITOR.replace('content');
     </script>
 </section>
