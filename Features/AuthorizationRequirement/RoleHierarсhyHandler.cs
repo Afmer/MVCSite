@@ -20,12 +20,10 @@ public class RoleHierarсhyHandler : AuthorizationHandler<RoleHierarсhyRequirem
         }
         if(token != null)
         {
-            var tokenRecord = _db.IdentityTokens.Find(token);
-            if(tokenRecord != null)
+            var user = _db.GetUserInformationFromToken(token);
+            if(user != null)
             {
-                var user = _db.UserInformation.Find(tokenRecord.Login);
-                var validUser = user ?? throw new Exception("the user was not found using the token");
-                Role role = validUser.Role;
+                Role role = user.Role;
                 if(role <= requirement.Role)
                     context.Succeed(requirement);
                 else

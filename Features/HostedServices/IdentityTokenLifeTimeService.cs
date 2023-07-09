@@ -28,17 +28,9 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
         return Task.CompletedTask;
     }
 
-    private void ScheduledMethod(object? state)
+    private async void ScheduledMethod(object? state)
     {
-        Func<IdentityTokenDataModel, bool> predicate = obj =>
-        {
-            var timeSpan = new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds);
-            var timeAuthorization = DateTime.UtcNow - obj.DateUpdate;
-            return timeAuthorization > timeSpan;
-        };
-        var timedOutEntries = _db.IdentityTokens.Where(predicate);
-        _db.IdentityTokens.RemoveRange(timedOutEntries);
-        _db.SaveChanges();
+        await _db.CheckTokensLifeTime(_authLifeTime);
     }
     public IdentityTokenLifeTimeService(IDBContext db, IConfiguration configuration)
     {

@@ -20,18 +20,24 @@ public class ImageController : Controller
         if(uploadedFile == null)
             return Content("{}", "application/json");
         var image = new RecipeImageInfoDataModel();
-        _db.RecipeImages.Add(image);
-        var imagePath = _hostEnviroment + "/AppData/RecipeImages/" + image.Id.ToString() + ".jpg";
-        using (var fileStream = new FileStream(imagePath, FileMode.Create))
+        var addImageResult = await _db.AddRecipeImage(image);
+        if(addImageResult.status == Features.Enums.AddRecipeImageStatusCode.Success)
         {
-            await uploadedFile.CopyToAsync(fileStream);
+            var imagePath = _hostEnviroment + "/AppData/RecipeImages/" + addImageResult.imageId.ToString() + ".jpg";
+            using (var fileStream = new FileStream(imagePath, FileMode.Create))
+            {
+                await uploadedFile.CopyToAsync(fileStream);
+            }
+            var data = new { url = "/api/Image/Show?" + "id=" + image.Id.ToString()  };
+            var json = JsonSerializer.Serialize(data);
+            Console.WriteLine(json);
+            var a = new JsonResult(data);
+            return new JsonResult(data);
         }
-        var data = new { url = "/api/Image/Show?" + "id=" + image.Id.ToString()  };
-        await _db.SaveChangesAsync();
-        var json = JsonSerializer.Serialize(data);
-        Console.WriteLine(json);
-        var a = new JsonResult(data);
-        return new JsonResult(data);
+        else
+        {
+            return Content("{\"status\"=\"error\"}", "application/json");
+        }
     }
     [HttpGet]
     public IActionResult Show(Guid id)

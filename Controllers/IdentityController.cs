@@ -3,7 +3,6 @@ using MVCSite.Features.Extensions;
 using MVCSite.Interfaces;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using MVCSite.Features.Configurations;
 using MVCSite.Models;
 using MVCSite.Features.Enums;
@@ -36,21 +35,25 @@ public class IdentityController : Controller
         return View();
     }
     [HttpPost]
-    public async Task<IResult> Login(string login, string password)
+    public async Task<IActionResult> Login(string login, string password)
     {
-        var user = _db.UserInformation.Find(login);
-        if (user is null) return Results.Unauthorized();
-        if(!HashPassword.IsPasswordValid(password, user.Salt, user.PasswordHash)) return Results.Unauthorized();
-        var token = IdentityToken.Generate();
-        _db.IdentityTokens.Add(new Models.IdentityTokenDataModel(token, login){DateUpdate = DateTime.UtcNow});
-        await _db.SaveChangesAsync();
-        var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
-        ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+        var loginResult = await _db.LoginHandler(login, password);
+        if(loginResult.status == LoginStatusCode.LoginOrPasswordError)
+            return Unauthorized();
+        else if(loginResult.status == LoginStatusCode.Success)
         {
-            ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
-        });
-        return Results.Redirect("~/Home/Index");
+            var claims = new List<Claim> { new Claim(Constant.IdentityToken, loginResult.token) };
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+            await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+            {
+                ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
+            });
+            return Redirect("~/Home/Index");
+        }
+        else
+        {
+            return Content("unkonwn error");
+        }
     }
     public async Task<IResult> Logout()
     {
@@ -76,8 +79,7 @@ public class IdentityController : Controller
             ViewBag.ErrorMessage = "Не все обязательные поля заполнены";
             return View();
         }
-        var user = _db.UserInformation.Find(model.Login);
-        if (user != null)
+        if (_db.IsHasUser(model.Login))
         {
             ViewBag.ErrorMessage = "Пользователь с таким логином уже существует";
             return View();
@@ -86,17 +88,20 @@ public class IdentityController : Controller
         var salt = HashPassword.GenerateSaltForPassword();
         var hash = HashPassword.ComputePasswordHash(model.Password, salt);
         var userDataModel = new UserInformationDataModel(model.Login, hash, salt, Role.User, model.Email);
-        _db.UserInformation.Add(userDataModel);
-        var token = IdentityToken.Generate();
-        _db.IdentityTokens.Add(new Models.IdentityTokenDataModel(token, model.Login){DateUpdate = DateTime.UtcNow});
-        await _db.SaveChangesAsync();
-
-        var claims = new List<Claim> { new Claim(Constant.IdentityToken, token) };
-        ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-        await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+        var registerResult = await _db.RegisterHandler(userDataModel);
+        if(registerResult.status == RegisterStatusCode.Success)
         {
-            ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
-        });
-        return Redirect("~/Home/Index");
+            var claims = new List<Claim> { new Claim(Constant.IdentityToken, registerResult.token) };
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+            await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+            {
+                ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
+            });
+            return Redirect("~/Home/Index");
+        }
+        else
+        {
+            return Content("unkonwn error");
+        }
     }
 }
