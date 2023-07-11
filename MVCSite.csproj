@@ -13,6 +13,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
+    <Compile Remove="Tests\**\*.cs" />
   </ItemGroup>
   <Target Name="CreateRecipeImagesFolder" AfterTargets="AfterPublish">
     <MakeDir Directories="$(PublishDir)AppData/RecipeImages" Condition="!Exists('$(PublishDir)AppData/RecipeImages')" /> 

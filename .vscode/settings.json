@@ -21,5 +21,8 @@
             "username": "admin",
             "password": "red_alien"
         }
-    ]
+    ],
+    "files.exclude": {
+        "**/NestedProject": true
+      }
 }
