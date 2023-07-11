@@ -23,6 +23,6 @@
         }
     ],
     "files.exclude": {
-        "**/NestedProject": true
-      }
+        "**/Tests": true
+    }
 }
