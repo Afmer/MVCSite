@@ -9,6 +9,7 @@ namespace MVCSite.Features.MariaDB;
 
 public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, IDBContext
 {
+    private static Dictionary<string, IdentityTokenDataModel> _identityTokensCache = new();
     public DbSet<UserInformationDataModel> UserInformation {get; set;} = null!;
 
     public DbSet<IdentityTokenDataModel> IdentityTokens {get; set;} = null!;
@@ -39,6 +40,53 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
             .OnDelete(DeleteBehavior.Restrict);
     }
 
+    protected IdentityTokenDataModel GetIdentityInfoFromeCache(string token)
+    {
+        lock(_identityTokensCache)
+        {
+            IdentityTokenDataModel? result;
+            if(_identityTokensCache.TryGetValue(token, out result))
+                return result;
+            else 
+                return null!;
+        }
+    }
+
+    protected void DeleteIdentityFromCache(string token)
+    {
+        lock(_identityTokensCache)
+        {
+            if(_identityTokensCache.ContainsKey(token))
+                _identityTokensCache.Remove(token);
+        }
+    }
+
+    protected void SetIdentityInCache(IdentityTokenDataModel obj)
+    {
+        lock(_identityTokensCache)
+        {
+            if(_identityTokensCache.ContainsKey(obj.IdentityToken))
+                _identityTokensCache[obj.IdentityToken] = obj;
+            else
+                _identityTokensCache.Add(obj.IdentityToken, obj);
+        }
+    }
+
+    protected void DeleteIdentityWithPredicateFromCache(Func<IdentityTokenDataModel, bool> predicate)
+    {
+        lock(_identityTokensCache)
+        {
+            Queue<string> tokensForRemoval = new();
+            foreach(var item in _identityTokensCache)
+            {
+                if(predicate(item.Value))
+                    tokensForRemoval.Enqueue(item.Key);
+            }
+            foreach(var token in tokensForRemoval)
+                _identityTokensCache.Remove(token);
+        }
+    }
+
     public async Task<(LoginStatusCode status, string token)> LoginHandler(string login, string password)
     {
         try
@@ -47,8 +95,10 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
             if (user is null) return (LoginStatusCode.LoginOrPasswordError, "");
             if(!HashPassword.IsPasswordValid(password, user.Salt, user.PasswordHash)) return (LoginStatusCode.LoginOrPasswordError, "");
             var token = IdentityToken.Generate();
-            IdentityTokens.Add(new Models.IdentityTokenDataModel(token, login){DateUpdate = DateTime.UtcNow});
+            var identityObj = new Models.IdentityTokenDataModel(token, login){DateUpdate = DateTime.UtcNow};
+            IdentityTokens.Add(identityObj);
             await SaveChangesAsync();
+            SetIdentityInCache(identityObj);
             return (LoginStatusCode.Success, token);
         }
         catch
@@ -63,8 +113,10 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
         {
             UserInformation.Add(userDataModel);
             var token = IdentityToken.Generate();
-            IdentityTokens.Add(new Models.IdentityTokenDataModel(token, userDataModel.Login){DateUpdate = DateTime.UtcNow});
+            var identityObj = new Models.IdentityTokenDataModel(token, userDataModel.Login){DateUpdate = DateTime.UtcNow};
+            IdentityTokens.Add(identityObj);
             await SaveChangesAsync();
+            SetIdentityInCache(identityObj);
             return (RegisterStatusCode.Success, token);
         }
         catch
@@ -81,7 +133,13 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
 
     public UserInformationDataModel GetUserInformationFromToken(string token)
     {
-        var tokenRecord = IdentityTokens.Find(token);
+        var tokenRecord = GetIdentityInfoFromeCache(token);
+        if(tokenRecord == null)
+        {
+            tokenRecord = IdentityTokens.Find(token);
+            if(tokenRecord != null)
+                SetIdentityInCache(tokenRecord);
+        }
         if(tokenRecord != null)
         {
             return UserInformation.Find(tokenRecord.Login)!;
@@ -97,6 +155,7 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
             var timeAuthorization = DateTime.UtcNow - obj.DateUpdate;
             return timeAuthorization > timeSpan;
         };
+        DeleteIdentityWithPredicateFromCache(predicate);
         var timedOutEntries = IdentityTokens.Where(predicate);
         IdentityTokens.RemoveRange(timedOutEntries);
         await SaveChangesAsync();
@@ -104,9 +163,14 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
 
     public async Task RemoveIdentityToken(string token)
     {
-        var removalRecord = IdentityTokens.Find(token);
+        var removalRecord = GetIdentityInfoFromeCache(token);
+        if(removalRecord == null)
+        {
+            removalRecord = IdentityTokens.Find(token);
+        }
         if(removalRecord != null)
         {
+            DeleteIdentityFromCache(token);
             IdentityTokens.Remove(removalRecord);
             await SaveChangesAsync();
         }
