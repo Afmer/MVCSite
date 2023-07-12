@@ -8,9 +8,9 @@ namespace MVCSite.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IDBContext _db;
+    private readonly IDBManager _db;
 
-    public HomeController(ILogger<HomeController> logger, IDBContext db)
+    public HomeController(ILogger<HomeController> logger, IDBManager db)
     {
         _logger = logger;
         _db = db;

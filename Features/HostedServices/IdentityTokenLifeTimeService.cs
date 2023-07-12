@@ -6,9 +6,9 @@ namespace MVCSite.Features.HostedServices;
 public class IdentityTokenLifeTimeService : IHostedService, IDisposable
 {
     private Timer _timer = null!;
+    private readonly IServiceProvider _serviceProvider;
     private readonly AuthLifeTimeConfiguration _authLifeTime;
     private readonly CheckIdentityTimerConfiguration _timerConfiguration;
-    private IDBContext _db;
     public void Dispose()
     {
         _timer?.Dispose();
@@ -30,11 +30,15 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
 
     private async void ScheduledMethod(object? state)
     {
-        await _db.CheckTokensLifeTime(_authLifeTime);
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IDBManager>();
+            await db.CheckTokensLifeTime(_authLifeTime);
+        }
     }
-    public IdentityTokenLifeTimeService(IDBContext db, IConfiguration configuration)
+    public IdentityTokenLifeTimeService(IServiceProvider serviceProvider, IConfiguration configuration)
     {
-        _db = db;
+        _serviceProvider = serviceProvider;
         var tempLifeTime = configuration.GetSection("AuthLifeTime").Get<AuthLifeTimeConfiguration>();
         if(tempLifeTime != null)
             _authLifeTime = tempLifeTime;

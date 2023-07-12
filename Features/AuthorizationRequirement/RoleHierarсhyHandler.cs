@@ -6,7 +6,7 @@ using MVCSite.Features.Enums;
 namespace MVCSite.Features.AuthorizationRequirement;
 public class RoleHierarсhyHandler : AuthorizationHandler<RoleHierarсhyRequirement>
 {
-    protected IDBContext _db;
+    protected IDBManager _db;
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleHierarсhyRequirement requirement)
     {
         var claim = context.User.FindFirst(c => c.Type == Constant.IdentityToken);
@@ -34,5 +34,5 @@ public class RoleHierarсhyHandler : AuthorizationHandler<RoleHierarсhyRequirem
         else context.Fail();
         return Task.CompletedTask;
     }
-    public RoleHierarсhyHandler(IDBContext db) => _db = db;
+    public RoleHierarсhyHandler(IDBManager db) => _db = db;
 }

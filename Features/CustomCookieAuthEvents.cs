@@ -5,7 +5,7 @@ using MVCSite.Interfaces;
 namespace MVCSite.Features;
 public class CustomCookieAuthEvents : CookieAuthenticationEvents
 {
-    protected IDBContext _db;
+    protected IDBManager _db;
     public override async Task<Task> SigningOut(CookieSigningOutContext context)
     {
         var claim = context.HttpContext.User.FindFirst(c => c.Type == Constant.IdentityToken);
@@ -17,7 +17,7 @@ public class CustomCookieAuthEvents : CookieAuthenticationEvents
         }
         return base.SigningOut(context);
     }
-    public CustomCookieAuthEvents(IDBContext db)
+    public CustomCookieAuthEvents(IDBManager db)
     {
         _db = db;
     }

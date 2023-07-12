@@ -27,7 +27,8 @@ builder.Services.AddDbContextPool<MariaDbContext>(options => options
             ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MariaDbConnectionString"))
         )
 );
-builder.Services.AddTransient<IDBContext, MariaDbContext>();
+builder.Services.AddScoped<IDBContext, MariaDbContext>();
+builder.Services.AddScoped<IDBManager, DbManager>();
 builder.Services.AddTransient<IAuthorizationHandler, RoleHierarсhyHandler>();
 builder.Services.AddAuthorization(opts => 
 {

@@ -7,8 +7,8 @@ namespace MVCSite.Areas.api.Controllers;
 public class ImageController : Controller
 {
     private readonly string _hostEnviroment;
-    private readonly IDBContext _db;
-    public ImageController(IWebHostEnvironment hostEnvironment, IDBContext db)
+    private readonly IDBManager _db;
+    public ImageController(IWebHostEnvironment hostEnvironment, IDBManager db)
     {
         _hostEnviroment = hostEnvironment.ContentRootPath;
         _db = db;

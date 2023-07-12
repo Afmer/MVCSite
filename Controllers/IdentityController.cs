@@ -11,9 +11,9 @@ namespace MVCSite.Controllers;
 public class IdentityController : Controller
 {
     private readonly ILogger<IdentityController> _logger;
-    private readonly IDBContext _db;
+    private readonly IDBManager _db;
     private readonly AuthLifeTimeConfiguration _authLifeTime;
-    public IdentityController(ILogger<IdentityController> logger, IDBContext db, IConfiguration configuration)
+    public IdentityController(ILogger<IdentityController> logger, IDBManager db, IConfiguration configuration)
     {
         _logger = logger;
         _db = db;
