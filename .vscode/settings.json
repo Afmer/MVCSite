@@ -6,7 +6,6 @@
             "savePath": "/wwwroot/css"
         }
     ],
-    "dotnet-test-explorer.testProjectPath": "../MVCSite.Tests/MVCSite.Tests.csproj",
     "files.exclude": {
         "**/Tests": true
     }
