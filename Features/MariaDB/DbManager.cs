@@ -67,8 +67,8 @@ public class DbManager : IDBManager
         try
         {
             var user = _dbContext.UserInformation.Find(login);
-            if (user is null) return (LoginStatusCode.LoginOrPasswordError, "");
-            if(!HashPassword.IsPasswordValid(password, user.Salt, user.PasswordHash)) return (LoginStatusCode.LoginOrPasswordError, "");
+            if (user is null) return (LoginStatusCode.LoginOrPasswordError, null!);
+            if(!HashPassword.IsPasswordValid(password, user.Salt, user.PasswordHash)) return (LoginStatusCode.LoginOrPasswordError, null!);
             var token = IdentityToken.Generate();
             var identityObj = new Models.IdentityTokenDataModel(token, login){DateUpdate = DateTime.UtcNow};
             _dbContext.IdentityTokens.Add(identityObj);
