@@ -146,8 +146,12 @@ public class DbManager : IDBManager
         if(removalRecord != null)
         {
             DeleteIdentityFromCache(token);
-            _dbContext.IdentityTokens.Remove(removalRecord);
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                _dbContext.IdentityTokens.Remove(removalRecord);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch{}
         }
     }
     public async Task<(AddRecipeImageStatusCode status, Guid imageId)> AddRecipeImage(RecipeImageInfoDataModel image)
