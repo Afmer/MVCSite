@@ -168,4 +168,12 @@ public class DbManager : IDBManager
             return (AddRecipeImageStatusCode.Error, Guid.Empty);
         }
     }
+
+    public IdentityTokenDataModel GetIdentityToken(string token)
+    {
+        var tokenData = GetIdentityInfoFromeCache(token);
+        if(tokenData == null)
+            tokenData = _dbContext.IdentityTokens.Find(token);
+        return tokenData!;
+    }
 }

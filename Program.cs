@@ -8,6 +8,7 @@ using MVCSite.Features.Extensions;
 using MVCSite.Features.Enums;
 using MVCSite.Features;
 using MVCSite.Features.HostedServices;
+using MVCSite.Features.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -39,7 +40,7 @@ var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();   // добавление middleware авторизации 
-
+app.UseMiddleware<AuthChecker>();
 app.MapGet("/accessdenied", async (HttpContext context) =>
 {
     context.Response.StatusCode = 403;

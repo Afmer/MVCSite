@@ -12,4 +12,5 @@ public interface IDBManager
        public Task CheckTokensLifeTime(AuthLifeTimeConfiguration config);
        public Task RemoveIdentityToken(string token);
        public Task<(AddRecipeImageStatusCode status, Guid imageId)> AddRecipeImage(RecipeImageInfoDataModel image);
+       public IdentityTokenDataModel GetIdentityToken(string token);
 }
