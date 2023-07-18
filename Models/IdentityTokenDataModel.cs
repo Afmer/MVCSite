@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using MVCSite.Features.Configurations;
 
 namespace MVCSite.Models;
 [PrimaryKey(nameof(IdentityToken))]
 public class IdentityTokenDataModel
 {
-    [MaxLength(100)]
+    [StringLength(DBSettings.IdentityTokenLength - DBSettings.IdentityTokenLength % 2)]
     public string IdentityToken {get; set;}
-    [MaxLength(20)]
+    [StringLength(DBSettings.LoginMaxLength, MinimumLength = DBSettings.LoginMinLength)]
     public string Login {get; set;}
     public DateTime DateUpdate {get; set;}
     public IdentityTokenDataModel(string identityToken, string login)

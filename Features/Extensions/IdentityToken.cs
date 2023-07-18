@@ -1,13 +1,14 @@
+using MVCSite.Features.Configurations;
 namespace MVCSite.Features.Extensions;
 public static class IdentityToken
 {
     ///<summary>
-    ///Генерирует строку длинной 100
-    ///(Generates a string of length 100)
+    ///Генерирует строку длинной, которая задана в DBSettings
+    ///(Generates a string with the length specified in DBSettings)
     ///</summary>
     public static string Generate()
     {
-        return Generate(50);
+        return Generate(DBSettings.IdentityTokenLength / 2);
     }
     ///<summary>
     ///Длина исходной строки будет равна length * 2

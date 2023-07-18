@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using MVCSite.Features.Configurations;
 using MVCSite.Features.Enums;
 namespace MVCSite.Models;
 [PrimaryKey(nameof(Login))]
 public class UserInformationDataModel
 {
-    [MaxLength(20)]
+    [StringLength(DBSettings.LoginMaxLength, MinimumLength = DBSettings.LoginMinLength)]
     public string Login {get; set;}
     [MaxLength(40)]
     public string PasswordHash {get; set;}
