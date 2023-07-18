@@ -35,8 +35,12 @@ public class IdentityController : Controller
         return View();
     }
     [HttpPost]
-    public async Task<IActionResult> Login(string login, string password)
+    public async Task<IActionResult> Login(LoginModel model)
     {
+        var login = model.Login;
+        var password = model.Password;
+        if(login == null || password == null)
+            return Content("unkonwn error");
         var loginResult = await _db.LoginHandler(login, password);
         if(loginResult.status == LoginStatusCode.LoginOrPasswordError)
             return Unauthorized();
