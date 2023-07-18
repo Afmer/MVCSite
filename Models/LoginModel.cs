@@ -4,8 +4,12 @@ using MVCSite.Features.Configurations;
 namespace MVCSite.Models;
 public class LoginModel
 {
-    [StringLength(DBSettings.LoginMaxLength, MinimumLength = DBSettings.LoginMinLength)]
+    [Display(Name = "Логин")]
+    [Required(ErrorMessage = "Введите логин")]
     public string? Login {get; set;}
-    [StringLength(DBSettings.PasswordMaxLength, MinimumLength = DBSettings.PasswordMinLength)]
+
+    [Display(Name = "Пароль")]
+    [Required(ErrorMessage = "Введите пароль")]
+    [DataType(DataType.Password)]
     public string? Password {get; set;}
 }

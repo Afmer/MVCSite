@@ -1,15 +1,17 @@
-@model MVCSite.Models.LoginModel
+@model LoginModel
 <section id="banner">
     <div class="col-6 col-12-medium">
     <h3>Вход</h3>
     <form method="post">
         <div class="row gtr-uniform">
             <div class="col-6 col-12-xsmall">
-                <input type="text" asp-for="Login" name="login" value="" placeholder="Логин"/>
+                <input asp-for="Login" placeholder="@Html.DisplayNameFor(x => x.Login)"/>
+                <span asp-validation-for="Login" color="red"></span>
             </div>
             <div class="col-6 col-12-xsmall"></div>
             <div class="col-6 col-12-xsmall">
-                <input type="password" asp-for="Password" name="password" value="" placeholder="Пароль" />
+                <input asp-for="Password" placeholder="@Html.DisplayNameFor(x => x.Password)" />
+                <span asp-validation-for="Password" color="red"></span>
             </div>
             <!-- Break -->
             <!-- Break -->

@@ -37,26 +37,33 @@ public class IdentityController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(LoginModel model)
     {
-        var login = model.Login;
-        var password = model.Password;
-        if(login == null || password == null)
-            return Content("unkonwn error");
-        var loginResult = await _db.LoginHandler(login, password);
-        if(loginResult.status == LoginStatusCode.LoginOrPasswordError)
-            return Unauthorized();
-        else if(loginResult.status == LoginStatusCode.Success)
+        if(ModelState.IsValid)
         {
-            var claims = new List<Claim> { new Claim(Constant.IdentityToken, loginResult.token) };
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-            await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+            var login = model.Login;
+            var password = model.Password;
+            if(login == null || password == null)
+                return Content("unkonwn error");
+            var loginResult = await _db.LoginHandler(login, password);
+            if(loginResult.status == LoginStatusCode.LoginOrPasswordError)
+                return Unauthorized();
+            else if(loginResult.status == LoginStatusCode.Success)
             {
-                ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
-            });
-            return Redirect("~/Home/Index");
+                var claims = new List<Claim> { new Claim(Constant.IdentityToken, loginResult.token) };
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+                await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+                {
+                    ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
+                });
+                return Redirect("~/Home/Index");
+            }
+            else
+            {
+                return Content("unkonwn error");
+            }
         }
         else
         {
-            return Content("unkonwn error");
+            return View(model);
         }
     }
     public async Task<IResult> Logout()
