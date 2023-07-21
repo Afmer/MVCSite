@@ -4,6 +4,7 @@ using MVCSite.Interfaces;
 using MVCSite.Models;
 using MVCSite.Features.Extensions;
 using MVCSite.Features.Enums;
+using MVCSite.Features.Configurations;
 namespace Tests;
 [TestFixture]
 public class DbManagerTests
@@ -105,6 +106,159 @@ public class DbManagerTests
         registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3", Password = null, Email = "NewTest3@mail.ru"});
         Assert.AreEqual(RegisterStatusCode.Error, registerResult.Result.status);
         Assert.True(registerResult.Result.token == null);
+
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
+    [Test]
+    public void IsHasUserTest()
+    {
+        var dbContext = CreateContext("DBForIsHasUser");
+        var dbManager = new DbManager(dbContext);
+
+        int salt = HashPassword.GenerateSaltForPassword();
+        dbContext.UserInformation.Add(new UserInformationDataModel("testUser", HashPassword.ComputePasswordHash("testPassword", salt), salt, Role.User, "test@mail.ru"));
+        dbContext.SaveChanges();
+
+        var isHasUserResult = dbManager.IsHasUser("testUser");
+        Assert.True(isHasUserResult);
+        isHasUserResult = dbManager.IsHasUser("testUser2");
+        Assert.True(!isHasUserResult);
+        isHasUserResult = dbManager.IsHasUser("testUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUser");
+        Assert.True(!isHasUserResult);
+        isHasUserResult = dbManager.IsHasUser(null!);
+        Assert.True(!isHasUserResult);
+        isHasUserResult = dbManager.IsHasUser("");
+        Assert.True(!isHasUserResult);
+
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
+    [Test]
+    public void GetUserInformationFromTokenTest()
+    {
+        var dbContext = CreateContext("DBForGetUserInformationFromToken");
+        var dbManager = new DbManager(dbContext);
+
+        int salt = HashPassword.GenerateSaltForPassword();
+        dbContext.UserInformation.Add(new UserInformationDataModel("testUser", HashPassword.ComputePasswordHash("testPassword", salt), salt, Role.User, "test@mail.ru"));
+        string token = IdentityToken.Generate();
+        dbContext.IdentityTokens.Add(new IdentityTokenDataModel(token, "testUser"));
+        dbContext.SaveChanges();
+
+        var getUserResult = dbManager.GetUserInformationFromToken(token);
+        Assert.True(getUserResult != null);
+        getUserResult = dbManager.GetUserInformationFromToken(IdentityToken.Generate());
+        Assert.True(getUserResult == null);
+        getUserResult = dbManager.GetUserInformationFromToken(null!);
+        Assert.True(getUserResult == null);
+
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
+    [Test]
+    public void CheckTokensLifeTimeTest()
+    {
+        var dbContext = CreateContext("DBForCheckTokensLifeTimeTest");
+        var dbManager = new DbManager(dbContext);
+        var config = new AuthLifeTimeConfiguration(){Hours = 12};
+
+        var validTokens = new List<IdentityTokenDataModel>();
+        var rnd = new Random();
+        for(int i = 0; i < 1000; i++)
+        {
+            int hours = 0;
+            while(hours == 0 || hours == config.Hours)
+                hours = rnd.Next(48);
+            var overTimeSpan = new TimeSpan(hours, 0, 0);
+            var token = new IdentityTokenDataModel(IdentityToken.Generate(), "test" + i.ToString()){DateUpdate = DateTime.UtcNow - overTimeSpan};
+            dbContext.IdentityTokens.Add(token);
+            if(hours <= config.Hours)
+                validTokens.Add(token);
+        }
+        dbContext.SaveChanges();
+        dbManager.CheckTokensLifeTime(config).Wait();
+        int validNum = validTokens.Count();
+        int validExistNum = dbContext.IdentityTokens.Count();
+        Assert.True(validTokens.Count == dbContext.IdentityTokens.Count());
+        foreach(var token in validTokens)
+        {
+            var entry = dbContext.IdentityTokens.Find(token.IdentityToken);
+            Assert.True(entry != null);
+        }
+
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
+    [Test]
+    public void RemoveIdentityTokenTest()
+    {
+        var dbContext = CreateContext("DBForRemoveIdentityTokenTest");
+        var dbManager = new DbManager(dbContext);
+
+        List<IdentityTokenDataModel> tokens = new();
+        for(int i = 0; i < 1000; i++)
+        {
+            var token = new IdentityTokenDataModel(IdentityToken.Generate(), "test" + i.ToString());
+            dbContext.IdentityTokens.Add(token);
+            tokens.Add(token);
+        }
+        dbContext.SaveChanges();
+        int randomIndex = new Random().Next(999);
+        var removalToken = tokens[randomIndex];
+        tokens.Remove(removalToken);
+        dbManager.RemoveIdentityToken(removalToken.IdentityToken).Wait();
+        Assert.True(tokens.Count == dbContext.IdentityTokens.Count());
+        foreach(var token in tokens)
+        {
+            var entry = dbContext.IdentityTokens.Find(token.IdentityToken);
+            Assert.True(entry != null);
+        }
+        dbManager.RemoveIdentityToken(IdentityToken.Generate()).Wait();
+        Assert.True(tokens.Count == dbContext.IdentityTokens.Count());
+        foreach(var token in tokens)
+        {
+            var entry = dbContext.IdentityTokens.Find(token.IdentityToken);
+            Assert.True(entry != null);
+        }
+        dbManager.RemoveIdentityToken(null!).Wait();
+        Assert.True(tokens.Count == dbContext.IdentityTokens.Count());
+        foreach(var token in tokens)
+        {
+            var entry = dbContext.IdentityTokens.Find(token.IdentityToken);
+            Assert.True(entry != null);
+        }
+
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
+    [Test]
+    public void GetIdentityTokenTest()
+    {
+        var dbContext = CreateContext("DBForRemoveIdentityTokenTest");
+        var dbManager = new DbManager(dbContext);
+
+        List<IdentityTokenDataModel> tokens = new();
+        for(int i = 0; i < 1000; i++)
+        {
+            var token = new IdentityTokenDataModel(IdentityToken.Generate(), "test" + i.ToString());
+            dbContext.IdentityTokens.Add(token);
+            tokens.Add(token);
+        }
+        dbContext.SaveChanges();
+        var rnd = new Random();
+        IdentityTokenDataModel result = null!;
+        for(int i = 0; i < 2000; i++)
+        {
+            if(i % 2 == 0)
+            {
+                var token = tokens[rnd.Next(999)];
+                result = dbManager.GetIdentityToken(token.IdentityToken);
+                Assert.True(result != null);
+            }
+            else
+            {
+                result = dbManager.GetIdentityToken(IdentityToken.Generate());
+                Assert.True(result == null);
+            }
+        }
+        result = dbManager.GetIdentityToken(null!);
+        Assert.True(result == null);
 
         ((MariaDbContext)dbContext).Database.EnsureDeleted();
     }
