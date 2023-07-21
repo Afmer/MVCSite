@@ -6,7 +6,7 @@ namespace MVCSite.Interfaces;
 public interface IDBManager
 {
        public Task<(LoginStatusCode status, string token)> LoginHandler(string login, string password);
-       public Task<(RegisterStatusCode status, string token)> RegisterHandler(UserInformationDataModel userDataModel);
+       public Task<(RegisterStatusCode status, string token)> RegisterHandler(RegisterModel model);
        public bool IsHasUser(string login);
        public UserInformationDataModel GetUserInformationFromToken(string token);
        public Task CheckTokensLifeTime(AuthLifeTimeConfiguration config);

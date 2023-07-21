@@ -82,10 +82,21 @@ public class DbManager : IDBManager
         }
     }
 
-    public async Task<(RegisterStatusCode status, string token)> RegisterHandler(UserInformationDataModel userDataModel)
+    public async Task<(RegisterStatusCode status, string token)> RegisterHandler(RegisterModel model)
     {
         try
         {
+            if(model == null || model.Login == null || model.Password == null || model.Email == null)
+                return (RegisterStatusCode.Error, "");
+            var loginResult = _dbContext.UserInformation.Find(model.Login);
+            if(loginResult != null)
+                return (RegisterStatusCode.LoginExists, "");
+            bool isEmailExists = _dbContext.UserInformation.Any(e => e.Email == model.Email);
+            if(isEmailExists)
+                return (RegisterStatusCode.EmailExists, "");
+            var salt = HashPassword.GenerateSaltForPassword();
+            var hash = HashPassword.ComputePasswordHash(model.Password, salt);
+            var userDataModel = new UserInformationDataModel(model.Login, hash, salt, Role.User, model.Email);
             _dbContext.UserInformation.Add(userDataModel);
             var token = IdentityToken.Generate();
             var identityObj = new Models.IdentityTokenDataModel(token, userDataModel.Login){DateUpdate = DateTime.UtcNow};

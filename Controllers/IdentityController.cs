@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using MVCSite.Features.Extensions.Constants;
-using MVCSite.Features.Extensions;
 using MVCSite.Interfaces;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
@@ -91,12 +90,7 @@ public class IdentityController : Controller
     {
         if(ModelState.IsValid)
         {
-            if(model.Login == null || model.Password == null || model.Email == null)
-                return Content("unkonwn error");
-            var salt = HashPassword.GenerateSaltForPassword();
-            var hash = HashPassword.ComputePasswordHash(model.Password, salt);
-            var userDataModel = new UserInformationDataModel(model.Login, hash, salt, Role.User, model.Email);
-            var registerResult = await _db.RegisterHandler(userDataModel);
+            var registerResult = await _db.RegisterHandler(model);
             if(registerResult.status == RegisterStatusCode.Success)
             {
                 var claims = new List<Claim> { new Claim(CookieType.IdentityToken, registerResult.token) };
@@ -106,6 +100,16 @@ public class IdentityController : Controller
                     ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
                 });
                 return Redirect("~/Home/Index");
+            }
+            else if(registerResult.status == RegisterStatusCode.LoginExists)
+            {
+                ModelState.AddModelError(nameof(model.Login), "Такой логин уже зарегистрирован");
+                return View(model);
+            }
+            else if(registerResult.status == RegisterStatusCode.EmailExists)
+            {
+                ModelState.AddModelError(nameof(model.Email), "Такой Email уже зарегистрирован");
+                return View(model);
             }
             else
             {
