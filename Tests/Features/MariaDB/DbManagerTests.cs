@@ -8,68 +8,88 @@ namespace Tests;
 [TestFixture]
 public class DbManagerTests
 {
-    private IDBManager _dbManager = null!;
-    private IDBContext _dbContext = null!;
-    [SetUp]
-    public void Setup()
+    private readonly string _server = "localhost";
+    private readonly string _user = "admin";
+    private readonly string _password = "red_alien";
+    private IDBContext CreateContext(string dbName)
     {
-        string connectionString = "Server=localhost;User=admin;Password=red_alien;Database=DBForTests";
+        string connectionString = $"Server={_server};User={_user};Password={_password};Database={dbName}";
         var options = new DbContextOptionsBuilder<MariaDbContext>()
             .UseMySql(
                 connectionString,
                 ServerVersion.AutoDetect(connectionString)
             )
             .Options;
-        _dbContext = new MariaDbContext(options);
-        _dbManager = new DbManager(_dbContext);
+        var dbContext = new MariaDbContext(options);
+        return dbContext;
+    }
+    [SetUp]
+    public void Setup()
+    {
     }
     [Test]
     public void LoginHandlerTest()
     {
-        int salt = HashPassword.GenerateSaltForPassword();
-        _dbContext.UserInformation.Add(new UserInformationDataModel("testUser", HashPassword.ComputePasswordHash("testPassword", salt), salt, Role.User, "test@mail.ru"));
-        _dbContext.SaveChanges();
+        var dbContext = CreateContext("DBForLoginHAndler");
+        var dbManager = new DbManager(dbContext);
 
-        var loginResult = _dbManager.LoginHandler("testUser", "testPassword");
+        int salt = HashPassword.GenerateSaltForPassword();
+        dbContext.UserInformation.Add(new UserInformationDataModel("testUser", HashPassword.ComputePasswordHash("testPassword", salt), salt, Role.User, "test@mail.ru"));
+        dbContext.SaveChanges();
+
+        var loginResult = dbManager.LoginHandler("testUser", "testPassword");
         Assert.AreEqual(LoginStatusCode.Success, loginResult.Result.status);
         Assert.True(loginResult.Result.token != null && loginResult.Result.token != "");
-        var token = _dbContext.IdentityTokens.Find(loginResult.Result.token);
+        var token = dbContext.IdentityTokens.Find(loginResult.Result.token);
         if(token != null)
             Assert.True(token.IdentityToken == loginResult.Result.token && token.Login == "testUser");
         else
             Assert.Fail("token not found");
-        loginResult = _dbManager.LoginHandler("testUser13", "testPassword");
+        loginResult = dbManager.LoginHandler("testUser13", "testPassword");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
-        loginResult = _dbManager.LoginHandler("testUser", "testPassword13");
+        loginResult = dbManager.LoginHandler("testUser", "testPassword13");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
-        loginResult = _dbManager.LoginHandler("testUser13", "testPassword13");
+        loginResult = dbManager.LoginHandler("testUser13", "testPassword13");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
-        loginResult = _dbManager.LoginHandler("", "");
+        loginResult = dbManager.LoginHandler("", "");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
-        loginResult = _dbManager.LoginHandler("testUser", "");
+        loginResult = dbManager.LoginHandler("testUser", "");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
-        loginResult = _dbManager.LoginHandler("testUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUser", "testPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPassword");
+        loginResult = dbManager.LoginHandler("testUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUsertestUser", "testPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPasswordtestPassword");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
-        loginResult = _dbManager.LoginHandler("", "testPassword");
+        loginResult = dbManager.LoginHandler("", "testPassword");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
-        loginResult = _dbManager.LoginHandler(null!, null!);
+        loginResult = dbManager.LoginHandler(null!, null!);
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
 
-        _dbContext.UserInformation.RemoveRange(_dbContext.UserInformation);
-        _dbContext.IdentityTokens.RemoveRange(_dbContext.IdentityTokens);
-        _dbContext.SaveChanges();
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
+    [Test]
+    public void RegisterHandlerTest()
+    {
+        var dbContext = CreateContext("DBForRegisterHandler");
+        var dbManager = new DbManager(dbContext);
+
+        int salt = HashPassword.GenerateSaltForPassword();
+        dbContext.UserInformation.Add(new UserInformationDataModel("testUser", HashPassword.ComputePasswordHash("testPassword", salt), salt, Role.User, "test@mail.ru"));
+        dbContext.SaveChanges();
+
+        var registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "NewTestUser", Password = "NewTestPassword", Email = "newtest@mail.ru"});
+        Assert.AreEqual(RegisterStatusCode.Success, registerResult.Result.status);
+        Assert.True(registerResult.Result.token != null && registerResult.Result.token != "");
+
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
     }
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
-        ((MariaDbContext)_dbContext).Database.EnsureDeleted();
     }
 }
