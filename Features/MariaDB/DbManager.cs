@@ -87,13 +87,13 @@ public class DbManager : IDBManager
         try
         {
             if(model == null || model.Login == null || model.Password == null || model.Email == null)
-                return (RegisterStatusCode.Error, "");
+                return (RegisterStatusCode.Error, null!);
             var loginResult = _dbContext.UserInformation.Find(model.Login);
             if(loginResult != null)
-                return (RegisterStatusCode.LoginExists, "");
+                return (RegisterStatusCode.LoginExists, null!);
             bool isEmailExists = _dbContext.UserInformation.Any(e => e.Email == model.Email);
             if(isEmailExists)
-                return (RegisterStatusCode.EmailExists, "");
+                return (RegisterStatusCode.EmailExists, null!);
             var salt = HashPassword.GenerateSaltForPassword();
             var hash = HashPassword.ComputePasswordHash(model.Password, salt);
             var userDataModel = new UserInformationDataModel(model.Login, hash, salt, Role.User, model.Email);
@@ -107,7 +107,7 @@ public class DbManager : IDBManager
         }
         catch
         {
-            return (RegisterStatusCode.Error, "");
+            return (RegisterStatusCode.Error, null!);
         }
     }
 
