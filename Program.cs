@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MVCSite.Features.MariaDB;
 using MVCSite.Interfaces;
 using MVCSite.Features.AuthorizationRequirement;
-using MVCSite.Features.Extensions;
+using MVCSite.Features.Extensions.Constants;
 using MVCSite.Features.Enums;
 using MVCSite.Features;
 using MVCSite.Features.HostedServices;
@@ -33,7 +33,7 @@ builder.Services.AddScoped<IDBManager, DbManager>();
 builder.Services.AddTransient<IAuthorizationHandler, RoleHierarсhyHandler>();
 builder.Services.AddAuthorization(opts => 
 {
-    opts.AddPolicy(Constant.AdminHierarchy, policy => policy.Requirements.Add(new RoleHierarсhyRequirement(Role.Admin)));
+    opts.AddPolicy(PolicyName.AdminHierarchy, policy => policy.Requirements.Add(new RoleHierarсhyRequirement(Role.Admin)));
 });
 builder.Services.AddHostedService<IdentityTokenLifeTimeService>();
 var app = builder.Build();

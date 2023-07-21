@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
-using MVCSite.Features.Extensions;
+using MVCSite.Features.Extensions.Constants;
 using MVCSite.Interfaces;
 namespace MVCSite.Features.Middleware;
 public class AuthChecker
@@ -15,7 +15,7 @@ public class AuthChecker
         // Обработка удаления пользователя из таблицы IdentityTokens
         if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
         {
-            var claim = context.User.FindFirst(c => c.Type == Constant.IdentityToken);
+            var claim = context.User.FindFirst(c => c.Type == CookieType.IdentityToken);
             string token = null!;
             if(claim != null)
             {

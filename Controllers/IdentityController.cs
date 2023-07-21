@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MVCSite.Features.Extensions.Constants;
 using MVCSite.Features.Extensions;
 using MVCSite.Interfaces;
 using System.Security.Claims;
@@ -48,7 +49,7 @@ public class IdentityController : Controller
                 return Unauthorized();
             else if(loginResult.status == LoginStatusCode.Success)
             {
-                var claims = new List<Claim> { new Claim(Constant.IdentityToken, loginResult.token) };
+                var claims = new List<Claim> { new Claim(CookieType.IdentityToken, loginResult.token) };
                 ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
                 await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                 {
@@ -102,7 +103,7 @@ public class IdentityController : Controller
         var registerResult = await _db.RegisterHandler(userDataModel);
         if(registerResult.status == RegisterStatusCode.Success)
         {
-            var claims = new List<Claim> { new Claim(Constant.IdentityToken, registerResult.token) };
+            var claims = new List<Claim> { new Claim(CookieType.IdentityToken, registerResult.token) };
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
             await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
             {

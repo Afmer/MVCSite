@@ -1,6 +1,6 @@
 using MVCSite.Features.Configurations;
 using MVCSite.Interfaces;
-using MVCSite.Features.Extensions;
+using MVCSite.Features.Extensions.Constants;
 
 namespace MVCSite.Features.HostedServices;
 public class IdentityTokenLifeTimeService : IHostedService, IDisposable
@@ -48,12 +48,12 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
     public IdentityTokenLifeTimeService(IServiceProvider serviceProvider, IConfiguration configuration)
     {
         _serviceProvider = serviceProvider;
-        var tempLifeTime = configuration.GetSection(Constant.AuthLifeTimeSettings).Get<AuthLifeTimeConfiguration>();
+        var tempLifeTime = configuration.GetSection(SettingsName.AuthLifeTimeSettings).Get<AuthLifeTimeConfiguration>();
         if(tempLifeTime != null)
             _authLifeTime = tempLifeTime;
         else 
             throw new Exception("AuthLifeTime didn't set");
-        var tempTimer = configuration.GetSection(Constant.CheckIdentityTokensSettings).Get<CheckIdentityTimerConfiguration>();
+        var tempTimer = configuration.GetSection(SettingsName.CheckIdentityTokensSettings).Get<CheckIdentityTimerConfiguration>();
         if(tempTimer != null)
             _timerConfiguration = tempTimer;
         else

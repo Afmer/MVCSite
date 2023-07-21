@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using MVCSite.Interfaces;
-using MVCSite.Features.Extensions;
+using MVCSite.Features.Extensions.Constants;
 using MVCSite.Features.Enums;
 
 namespace MVCSite.Features.AuthorizationRequirement;
@@ -9,7 +9,7 @@ public class RoleHierarсhyHandler : AuthorizationHandler<RoleHierarсhyRequirem
     protected IDBManager _db;
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleHierarсhyRequirement requirement)
     {
-        var claim = context.User.FindFirst(c => c.Type == Constant.IdentityToken);
+        var claim = context.User.FindFirst(c => c.Type == CookieType.IdentityToken);
         string token = null!;
         if(claim != null)
             token = claim.Value;
