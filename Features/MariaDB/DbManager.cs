@@ -119,6 +119,8 @@ public class DbManager : IDBManager
 
     public UserInformationDataModel GetUserInformationFromToken(string token)
     {
+        if(token == null)
+            return null!;
         var tokenRecord = GetIdentityInfoFromeCache(token);
         if(tokenRecord == null)
         {
