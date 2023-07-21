@@ -59,6 +59,9 @@ public class DbManagerTests
         loginResult = _dbManager.LoginHandler("", "testPassword");
         Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
         Assert.True(loginResult.Result.token == null);
+        loginResult = _dbManager.LoginHandler(null!, null!);
+        Assert.AreEqual(LoginStatusCode.LoginOrPasswordError, loginResult.Result.status);
+        Assert.True(loginResult.Result.token == null);
 
         _dbContext.UserInformation.RemoveRange(_dbContext.UserInformation);
         _dbContext.IdentityTokens.RemoveRange(_dbContext.IdentityTokens);
