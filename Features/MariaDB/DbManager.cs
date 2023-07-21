@@ -186,6 +186,8 @@ public class DbManager : IDBManager
 
     public IdentityTokenDataModel GetIdentityToken(string token)
     {
+        if(token == null)
+            return null!;
         var tokenData = GetIdentityInfoFromeCache(token);
         if(tokenData == null)
             tokenData = _dbContext.IdentityTokens.Find(token);
