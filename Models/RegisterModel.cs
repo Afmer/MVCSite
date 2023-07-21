@@ -17,6 +17,6 @@ public class RegisterModel
 
     [Display(Name = "Email")]
     [Required(ErrorMessage = "Введите электронную почту")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "Некорректная электронная почта")]
     public string? Email {get; set;}
 }
