@@ -1,27 +1,22 @@
-@model MVCSite.Models.RegisterModel
-@{
-    string errorMessage = "";
-    if(ViewBag.ErrorMessage != null)
-        errorMessage = ViewBag.ErrorMessage;
-    else
-        errorMessage = "";
-}
+@model RegisterModel
 <section id="banner">
     <div class="col-6 col-12-medium">
     <h3>Регистрация</h3>
-    <font color="red">@errorMessage</font>
     <form method="post">
         <div class="row gtr-uniform">
             <div class="col-6 col-12-xsmall">
-                <input type="text" asp-for="Login" name="Login" value="" placeholder="Логин" />
+                <input asp-for="Login" placeholder="@Html.DisplayNameFor(x => x.Login)" />
+                <span style="color: red;" asp-validation-for="Login"></span>
             </div>
             <div class="col-6 col-12-xsmall"></div>
             <div class="col-6 col-12-xsmall">
-                <input type="password" asp-for="Password" name="Password" value="" placeholder="Пароль" />
+                <input asp-for="Password" placeholder="@Html.DisplayNameFor(x => x.Password)" />
+                <span style="color: red;" asp-validation-for="Password"></span>
             </div>
             <div class="col-6 col-12-xsmall"></div>
             <div class="col-6 col-12-xsmall">
-                <input type="email" asp-for="Email" name="Email" value="" placeholder="Почта" />
+                <input asp-for="Email" placeholder="@Html.DisplayNameFor(x => x.Email)" />
+                <span style="color: red;" asp-validation-for="Email"></span>
             </div>
             <!-- Break -->
             <!-- Break -->

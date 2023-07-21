@@ -4,10 +4,19 @@ using MVCSite.Features.Configurations;
 namespace MVCSite.Models;
 public class RegisterModel
 {
-    [StringLength(DBSettings.LoginMaxLength, MinimumLength = DBSettings.LoginMinLength)]
+    [Display(Name = "Логин")]
+    [Required(ErrorMessage = "Введите логин")]
+    [StringLength(DBSettings.LoginMaxLength, MinimumLength = DBSettings.LoginMinLength, ErrorMessage = "Логин должен быть от {2} до {1} символов")]
     public string? Login {get; set;}
-    [StringLength(DBSettings.PasswordMaxLength, MinimumLength = DBSettings.PasswordMinLength)]
+
+    [Display(Name = "Пароль")]
+    [Required(ErrorMessage = "Введите пароль")]
+    [DataType(DataType.Password)]
+    [StringLength(DBSettings.PasswordMaxLength, MinimumLength = DBSettings.PasswordMinLength, ErrorMessage = "Пароль должен быть от {2} до {1} символов")]
     public string? Password {get; set;}
+
+    [Display(Name = "Email")]
+    [Required(ErrorMessage = "Введите электронную почту")]
     [EmailAddress]
     public string? Email {get; set;}
 }

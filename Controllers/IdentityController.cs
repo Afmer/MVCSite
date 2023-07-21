@@ -89,34 +89,32 @@ public class IdentityController : Controller
     [HttpPost]
     public async Task<IActionResult> Register(RegisterModel model)
     {
-        if(model.Login == null || model.Password == null || model.Email == null)
+        if(ModelState.IsValid)
         {
-            ViewBag.ErrorMessage = "Не все обязательные поля заполнены";
-            return View();
-        }
-        if (_db.IsHasUser(model.Login))
-        {
-            ViewBag.ErrorMessage = "Пользователь с таким логином уже существует";
-            return View();
-        }
-
-        var salt = HashPassword.GenerateSaltForPassword();
-        var hash = HashPassword.ComputePasswordHash(model.Password, salt);
-        var userDataModel = new UserInformationDataModel(model.Login, hash, salt, Role.User, model.Email);
-        var registerResult = await _db.RegisterHandler(userDataModel);
-        if(registerResult.status == RegisterStatusCode.Success)
-        {
-            var claims = new List<Claim> { new Claim(CookieType.IdentityToken, registerResult.token) };
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-            await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+            if(model.Login == null || model.Password == null || model.Email == null)
+                return Content("unkonwn error");
+            var salt = HashPassword.GenerateSaltForPassword();
+            var hash = HashPassword.ComputePasswordHash(model.Password, salt);
+            var userDataModel = new UserInformationDataModel(model.Login, hash, salt, Role.User, model.Email);
+            var registerResult = await _db.RegisterHandler(userDataModel);
+            if(registerResult.status == RegisterStatusCode.Success)
             {
-                ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
-            });
-            return Redirect("~/Home/Index");
+                var claims = new List<Claim> { new Claim(CookieType.IdentityToken, registerResult.token) };
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+                await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+                {
+                    ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
+                });
+                return Redirect("~/Home/Index");
+            }
+            else
+            {
+                return Content("unkonwn error");
+            }
         }
         else
         {
-            return Content("unkonwn error");
+            return View(model);
         }
     }
 }
