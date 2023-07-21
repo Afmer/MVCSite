@@ -1,7 +1,11 @@
 @model LoginModel
+@using MVCSite.Features.Extensions.Constants
 <section id="banner">
     <div class="col-6 col-12-medium">
     <h3>Вход</h3>
+    <div style="color: red;">
+        @Html.ValidationMessage(ModelValidateErrorName.LoginOrPasswordError)
+    </div>
     <form method="post">
         <div class="row gtr-uniform">
             <div class="col-6 col-12-xsmall">

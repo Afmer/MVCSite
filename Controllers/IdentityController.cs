@@ -46,7 +46,10 @@ public class IdentityController : Controller
                 return Content("unkonwn error");
             var loginResult = await _db.LoginHandler(login, password);
             if(loginResult.status == LoginStatusCode.LoginOrPasswordError)
-                return Unauthorized();
+            {
+                ModelState.AddModelError(ModelValidateErrorName.LoginOrPasswordError, "Неправильный логин или пароль");
+                return View(model);
+            }
             else if(loginResult.status == LoginStatusCode.Success)
             {
                 var claims = new List<Claim> { new Claim(CookieType.IdentityToken, loginResult.token) };
