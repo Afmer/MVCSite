@@ -151,6 +151,8 @@ public class DbManager : IDBManager
 
     public async Task RemoveIdentityToken(string token)
     {
+        if(token == null)
+            return;
         var removalRecord = GetIdentityInfoFromeCache(token);
         if(removalRecord == null)
         {
