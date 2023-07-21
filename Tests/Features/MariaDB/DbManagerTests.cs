@@ -11,6 +11,7 @@ public class DbManagerTests
     private readonly string _server = "localhost";
     private readonly string _user = "admin";
     private readonly string _password = "red_alien";
+    private readonly Queue<IDBContext> _contexts = new();
     private IDBContext CreateContext(string dbName)
     {
         string connectionString = $"Server={_server};User={_user};Password={_password};Database={dbName}";
@@ -21,6 +22,7 @@ public class DbManagerTests
             )
             .Options;
         var dbContext = new MariaDbContext(options);
+        _contexts.Enqueue(dbContext);
         return dbContext;
     }
     [SetUp]
@@ -85,11 +87,31 @@ public class DbManagerTests
         var registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "NewTestUser", Password = "NewTestPassword", Email = "newtest@mail.ru"});
         Assert.AreEqual(RegisterStatusCode.Success, registerResult.Result.status);
         Assert.True(registerResult.Result.token != null && registerResult.Result.token != "");
+        registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "testUser", Password = "NewTestPassword", Email = "newtest@mail.ru"});
+        Assert.AreEqual(RegisterStatusCode.LoginExists, registerResult.Result.status);
+        Assert.True(registerResult.Result.token == null);
+        registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "NewTestUser2", Password = "NewTestPassword", Email = "test@mail.ru"});
+        Assert.AreEqual(RegisterStatusCode.EmailExists, registerResult.Result.status);
+        Assert.True(registerResult.Result.token == null);
+        registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "testUser", Password = "NewTestPassword", Email = "test@mail.ru"});
+        Assert.AreEqual(RegisterStatusCode.LoginExists, registerResult.Result.status);
+        Assert.True(registerResult.Result.token == null);
+        registerResult = dbManager.RegisterHandler(new RegisterModel());
+        Assert.AreEqual(RegisterStatusCode.Error, registerResult.Result.status);
+        Assert.True(registerResult.Result.token == null);
+        registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "NewTestUser3", Password = null, Email = "NewTest3@mail.ru"});
+        Assert.AreEqual(RegisterStatusCode.Error, registerResult.Result.status);
+        Assert.True(registerResult.Result.token == null);
+        registerResult = dbManager.RegisterHandler(new RegisterModel(){Login = "NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3NewTestUser3", Password = null, Email = "NewTest3@mail.ru"});
+        Assert.AreEqual(RegisterStatusCode.Error, registerResult.Result.status);
+        Assert.True(registerResult.Result.token == null);
 
         ((MariaDbContext)dbContext).Database.EnsureDeleted();
     }
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
+        foreach(var context in _contexts)
+            ((MariaDbContext)context).Database.EnsureDeleted();
     }
 }
