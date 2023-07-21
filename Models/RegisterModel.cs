@@ -15,6 +15,12 @@ public class RegisterModel
     [StringLength(DBSettings.PasswordMaxLength, MinimumLength = DBSettings.PasswordMinLength, ErrorMessage = "Пароль должен быть от {2} до {1} символов")]
     public string? Password {get; set;}
 
+    [Display(Name = "Подтвердите пароль")]
+    [Required(ErrorMessage = "Введите пароль повторно")]
+    [DataType(DataType.Password)]
+    [Compare("Password", ErrorMessage = "Пароли не совпадают.")]
+    public string? ConfirmPassword { get; set; }
+
     [Display(Name = "Email")]
     [Required(ErrorMessage = "Введите электронную почту")]
     [EmailAddress(ErrorMessage = "Некорректная электронная почта")]

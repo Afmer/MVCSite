@@ -15,6 +15,11 @@
             </div>
             <div class="col-6 col-12-xsmall"></div>
             <div class="col-6 col-12-xsmall">
+                <input asp-for="ConfirmPassword" placeholder="@Html.DisplayNameFor(x => x.ConfirmPassword)" />
+                <span style="color: red;" asp-validation-for="ConfirmPassword"></span>
+            </div>
+            <div class="col-6 col-12-xsmall"></div>
+            <div class="col-6 col-12-xsmall">
                 <input asp-for="Email" placeholder="@Html.DisplayNameFor(x => x.Email)" />
                 <span style="color: red;" asp-validation-for="Email"></span>
             </div>
