@@ -193,4 +193,9 @@ public class DbManager : IDBManager
             tokenData = _dbContext.IdentityTokens.Find(token);
         return tokenData!;
     }
+
+    public bool IsHasRecipe(Guid id)
+    {
+        return _dbContext.Recipes.Any(e => e.Id == id);
+    }
 }

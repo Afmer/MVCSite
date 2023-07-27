@@ -13,4 +13,5 @@ public interface IDBManager
        public Task RemoveIdentityToken(string token);
        public Task<(AddRecipeImageStatusCode status, Guid imageId)> AddRecipeImage(RecipeImageInfoDataModel image);
        public IdentityTokenDataModel GetIdentityToken(string token);
+       public bool IsHasRecipe(Guid id);
 }
