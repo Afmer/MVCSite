@@ -1,15 +1,34 @@
+@model EditRecipeModel
+@{
+    string id = Model.RecipeId.ToString();
+}
 <section>
     <script src ="~/js/ckeditor/ckeditor.js"></script>
     @using (Html.BeginForm("Edit", "Recipe", FormMethod.Post))
     {
         <div>
-            <textarea id = "content" name="content">this</textarea>
+            <h2>@Html.DisplayNameFor(m => m.Label)</h2>
+            <input asp-for="Label"></input>
+        </div>
+        <hr class="major" />
+        <div>
+            <h2>@Html.DisplayNameFor(m => m.LabelImage)</h2>
+            <input asp-for="LabelImage" class="button icon solid fa-download"></input>
+        </div>
+        <hr class="major" />
+        <div>
+            <h2>@Html.DisplayNameFor(m => m.Content)</h2>
+            <textarea asp-for="Content">this</textarea>
+        </div>
+        <hr class="major" />
+        <div>
+            <input asp-for="RecipeId" value=@id></input>
         </div>
         <div>
             <input type="submit" value="Отправить">
         </div>
     }
     <script>
-        CKEDITOR.replace('content');
+        CKEDITOR.replace('Content');
     </script>
 </section>
