@@ -58,7 +58,7 @@ public class RecipeController : Controller
                 imageEntry.Id = imageUpload.Result.Id;
                 imageEntry.RecipeId = model.RecipeId;
                 images.Enqueue(imageEntry);
-                return @$"<img src=""{imageUpload.Result.Url}""/>";
+                return @$"<img {match.Groups["leftContent"]} src=""{imageUpload.Result.Url}"" {match.Groups["rightContent"]}/>";
             }
             else
                 return "";
@@ -72,7 +72,7 @@ public class RecipeController : Controller
                 var recipeModel = new RecipeDataModel();
                 recipeModel.Id = model.RecipeId;
                 string content = Regex.Replace(model.Content!, 
-                @"<img\s+[^>]*src=""(?<base64>data:(?<type>[a-zA-Z]*)\/(?<extension>[a-zA-Z]*);base64,[^""]*)[^""]*""[^>]*>", MatchFunc);
+                @"<img(?<leftContent>\s+[^>]*)src=""(?<base64>data:(?<type>[a-zA-Z]*)\/(?<extension>[a-zA-Z]*);base64,[^""]*)(?<rightContent>[^""]*""[^>]*)>", MatchFunc);
                 recipeModel.Content = content;
                 recipeModel.Label = model.Label;
                 recipeModel.DateOfCreation = DateTime.UtcNow;
