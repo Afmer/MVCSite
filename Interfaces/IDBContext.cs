@@ -10,6 +10,7 @@ public interface IDBContext
 
     public DbSet<RecipeImageInfoDataModel> RecipeImages {get;}
     public DbSet<RecipeDataModel> Recipes {get;}
+    public DbSet<RecipeImageInfoDataModel> TempRecipeImages {get;}
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
     public int SaveChanges();
 }
