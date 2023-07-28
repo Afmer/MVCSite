@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MVCSite.Features.Configurations;
 using MVCSite.Features.Enums;
 using MVCSite.Features.Extensions;
@@ -197,5 +198,18 @@ public class DbManager : IDBManager
     public bool IsHasRecipe(Guid id)
     {
         return _dbContext.Recipes.Any(e => e.Id == id);
+    }
+
+    public async Task<AddRecipeStatusCode> AddRecipe(RecipeDataModel recipe, IEnumerable<RecipeImageInfoDataModel> images)
+    {
+            _dbContext.Recipes.Add(recipe);
+            _dbContext.RecipeImages.AddRange(images);
+            await _dbContext.SaveChangesAsync();
+            return AddRecipeStatusCode.Success;
+    }
+    public RecipeDataModel GetRecipe(Guid id)
+    {
+        var recipe = _dbContext.Recipes.Find(id);
+        return recipe!;
     }
 }

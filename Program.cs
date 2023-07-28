@@ -9,6 +9,7 @@ using MVCSite.Features.Enums;
 using MVCSite.Features;
 using MVCSite.Features.HostedServices;
 using MVCSite.Features.Middleware;
+using MVCSite.Features.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -30,6 +31,7 @@ builder.Services.AddDbContextPool<MariaDbContext>(options => options
 );
 builder.Services.AddScoped<IDBContext, MariaDbContext>();
 builder.Services.AddScoped<IDBManager, DbManager>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddTransient<IAuthorizationHandler, RoleHierarсhyHandler>();
 builder.Services.AddAuthorization(opts => 
 {

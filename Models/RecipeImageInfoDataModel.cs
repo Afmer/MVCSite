@@ -10,7 +10,7 @@ public class RecipeImageInfoDataModel
     public Guid Id {get; set;}
     [Required]
     public DateTime DateOfCreation {get; set;}
-    [MaxLength(20)]
+    [Required]
     public Guid? RecipeId {get; set;}
     public virtual RecipeDataModel? Recipe {get; set;} = null!;
 }
