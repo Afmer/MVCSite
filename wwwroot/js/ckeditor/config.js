@@ -37,4 +37,3 @@ CKEDITOR.editorConfig = function( config ) {
 	config.removeDialogTabs = 'image:advanced;link:advanced';
 };
 CKEDITOR.config.extraPlugins = ['simpleImageUpload', 'blockimagepaste'];
-CKEDITOR.config.uploadUrl = "/api/Image/Upload";

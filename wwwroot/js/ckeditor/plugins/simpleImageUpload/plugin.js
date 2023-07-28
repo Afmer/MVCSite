@@ -6,20 +6,16 @@ CKEDITOR.plugins.add( 'simpleImageUpload', {
         fileDialog.on('change', function (e) {
             var uploadUrl = editor.config.uploadUrl;
 			var file = fileDialog[0].files[0];
-			var imageData = new FormData();
-			imageData.append('file', file);
-
-			$.ajax({
-				url: uploadUrl,
-				type: 'POST',
-				contentType: false,
-				processData: false,
-				data: imageData,
-			}).done(function(done) {
-				var ele = editor.document.createElement('img');
-				ele.setAttribute('src', done.url);
-				editor.insertElement(ele);
-			});
+            if (file) {
+                const reader = new FileReader();
+                var base64Data;
+                reader.readAsDataURL(file);
+                reader.onload = function() {
+                    var ele = editor.document.createElement('img');
+                    ele.setAttribute('src', reader.result);
+                    editor.insertElement(ele);
+                };
+            }
 
         })
         editor.ui.addButton( 'SImage', {
