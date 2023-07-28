@@ -7,7 +7,7 @@ namespace MVCSite.Features.Services;
 public class ImageService : IImageService
 {
     private readonly string _hostEnviroment;
-    public ImageService(IWebHostEnvironment hostEnvironment, IDBManager db)
+    public ImageService(IWebHostEnvironment hostEnvironment)
     {
         _hostEnviroment = hostEnvironment.ContentRootPath;
     }
