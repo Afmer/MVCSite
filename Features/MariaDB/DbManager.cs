@@ -198,4 +198,18 @@ public class DbManager : IDBManager
     {
         return _dbContext.Recipes.Any(e => e.Id == id);
     }
+
+    public async Task<AddRecipeImageStatusCode> AddTempRecipeImage(RecipeImageInfoDataModel image)
+    {
+        try
+        {
+            _dbContext.TempRecipeImages.Add(image);
+            await _dbContext.SaveChangesAsync();
+            return AddRecipeImageStatusCode.Success;
+        }
+        catch
+        {
+            return AddRecipeImageStatusCode.Error;
+        }
+    }
 }

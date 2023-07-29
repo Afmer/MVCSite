@@ -14,4 +14,5 @@ public interface IDBManager
        public Task<(AddRecipeImageStatusCode status, Guid imageId)> AddRecipeImage(RecipeImageInfoDataModel image);
        public IdentityTokenDataModel GetIdentityToken(string token);
        public bool IsHasRecipe(Guid id);
+       public Task<AddRecipeImageStatusCode> AddTempRecipeImage(RecipeImageInfoDataModel image);
 }
