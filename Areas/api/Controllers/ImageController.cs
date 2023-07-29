@@ -2,36 +2,43 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using MVCSite.Interfaces;
 using MVCSite.Models;
+using MVCSite.Features.Enums;
+using MVCSite.Features.Extensions.Constants;
 namespace MVCSite.Areas.api.Controllers;
 [Area("api")]
 public class ImageController : Controller
 {
     private readonly string _hostEnviroment;
     private readonly IDBManager _db;
-    public ImageController(IWebHostEnvironment hostEnvironment, IDBManager db)
+    private readonly IImageService _imageService;
+    public ImageController(IWebHostEnvironment hostEnvironment, IDBManager db, IImageService imageService)
     {
         _hostEnviroment = hostEnvironment.ContentRootPath;
         _db = db;
+        _imageService = imageService;
     }
     [HttpPost]
-    public async Task<IActionResult> Upload()
+    public async Task<IActionResult> UploadRecipeImage()
     {
         var uploadedFile = Request.Form.Files.FirstOrDefault();
         if(uploadedFile == null)
-            return Content("{}", "application/json");
-        var image = new RecipeImageInfoDataModel();
-        var addImageResult = await _db.AddRecipeImage(image);
-        if(addImageResult.status == Features.Enums.AddRecipeImageStatusCode.Success)
+            return Content("{\"status\"=\"error\"}", "application/json");
+        string recipeIdStr = Request.Cookies[CookieType.RecipeID]!;
+        if(recipeIdStr == null)
+            return Content("{\"status\"=\"error\"}", "application/json");
+        Guid recipeId = new Guid(Request.Cookies[CookieType.RecipeID]!);
+        var imageUploadResult = await _imageService.Upload(uploadedFile, "RecipeImages");
+        if(imageUploadResult.Status == ImageUploadStatusCode.Success)
         {
-            var imagePath = _hostEnviroment + "/AppData/RecipeImages/" + addImageResult.imageId.ToString() + ".jpg";
-            using (var fileStream = new FileStream(imagePath, FileMode.Create))
+            var image = new TempRecipeImageInfoDataModel();
+            image.DateOfCreation = DateTime.UtcNow;
+            image.Id = imageUploadResult.Id;
+            image.RecipeId = recipeId;
+            if((await _db.AddTempRecipeImage(image)) == AddTempRecipeImageStatusCode.Error)
             {
-                await uploadedFile.CopyToAsync(fileStream);
+                throw new Exception();
             }
-            var data = new { url = "/api/Image/Show?" + "id=" + image.Id.ToString()  };
-            var json = JsonSerializer.Serialize(data);
-            Console.WriteLine(json);
-            var a = new JsonResult(data);
+            var data = new { url = imageUploadResult.Url  };
             return new JsonResult(data);
         }
         else
@@ -40,11 +47,11 @@ public class ImageController : Controller
         }
     }
     [HttpGet]
-    public IActionResult Show(Guid id)
+    public IActionResult Show(Guid id, string imageArea)
     {
         try
         {
-            var path = _hostEnviroment + "/AppData/RecipeImages/" + id.ToString() + ".jpg";
+            var path = _hostEnviroment + $"/AppData/{imageArea}/" + id.ToString() + ".jpg";
             FileStream fileStream = new(path, FileMode.Open, FileAccess.Read);
             return File(fileStream, "image/jpeg");
         }
