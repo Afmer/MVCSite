@@ -262,6 +262,57 @@ public class DbManagerTests
 
         ((MariaDbContext)dbContext).Database.EnsureDeleted();
     }
+    [Test]
+    public void CheckAndMigrateTempImagesTest()
+    {
+        var dbContext = CreateContext("CheckAndMigrateTempImagesTest");
+        var dbManager = new DbManager(dbContext);
+        var recipe = ModelFabric.GetRecipeDataModel();
+        dbContext.Recipes.Add(recipe);
+        dbContext.SaveChanges();
+        Queue<Guid> validIds = new();
+        Queue<Guid> invalidIds = new();
+        var rnd = new Random();
+        for(int i = 0; i < 1000; i++)
+        {
+            var tempImage = ModelFabric.GetTempRecipeImageInfoDataModel();
+            tempImage.RecipeId = recipe.Id;
+            if(rnd.Next(5) != 4)
+                validIds.Enqueue(tempImage.Id);
+            else
+                invalidIds.Enqueue(tempImage.Id);
+            dbContext.TempRecipeImages.Add(tempImage);
+        }
+        dbContext.SaveChanges();
+        var result = dbManager.CheckAndMigrateTempImages(validIds, recipe.Id).Result;
+        var tempImages = dbContext.TempRecipeImages.Where(x => x.RecipeId == recipe.Id).ToArray();
+        Assert.True(tempImages.Length == 0);
+        var images = dbContext.RecipeImages.Where(x => x.RecipeId == recipe.Id).OrderBy(x => x.Id).ToArray();
+        var sortedValidIds = validIds.OrderBy(x => x).ToArray();
+        if(validIds.Count == images.Length)
+        {
+            for(int i = 0; i < images.Length; i++)
+            {
+                if(images[i].Id != sortedValidIds[i])
+                    Assert.Fail();
+            }
+        }
+        else
+            Assert.Fail();
+        var imageForDelete = result.ImageForDelete.OrderBy(x => x.Id).ToArray();
+        var sortedInvalidIds = invalidIds.OrderBy(x => x).ToArray();
+        if(imageForDelete.Length == invalidIds.Count)
+        {
+            for(int i = 0; i < invalidIds.Count; i++)
+            {
+                if(imageForDelete[i].Id != sortedInvalidIds[i])
+                    Assert.Fail();
+            }
+        }
+        else
+            Assert.Fail();
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
