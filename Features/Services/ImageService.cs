@@ -1,5 +1,4 @@
 using MVCSite.Interfaces;
-using MVCSite.Models;
 using MVCSite.Features.Enums;
 
 namespace MVCSite.Features.Services;
@@ -22,5 +21,26 @@ public class ImageService : IImageService
             await uploadedFile.CopyToAsync(fileStream);
         }
         return ("/api/Image/Show?" + "id=" + id.ToString() + '&' + "imageArea=" + area, id, ImageUploadStatusCode.Success);
+    }
+    public async Task<bool> Delete(Guid id, string area)
+    {
+        var imagePath = _hostEnviroment + $"/AppData/{area}/" + id.ToString() + ".jpg";
+        try
+        {
+            if (File.Exists(imagePath))
+            {
+                await Task.Run(() => File.Delete(imagePath));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return  false;
+        }
     }
 }
