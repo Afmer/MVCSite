@@ -199,7 +199,7 @@ public class DbManager : IDBManager
         return _dbContext.Recipes.Any(e => e.Id == id);
     }
 
-    public async Task<AddTempRecipeImageStatusCode> AddTempRecipeImage(RecipeImageInfoDataModel image)
+    public async Task<AddTempRecipeImageStatusCode> AddTempRecipeImage(TempRecipeImageInfoDataModel image)
     {
         try
         {
@@ -207,8 +207,9 @@ public class DbManager : IDBManager
             await _dbContext.SaveChangesAsync();
             return AddTempRecipeImageStatusCode.Success;
         }
-        catch
+        catch(Exception e)
         {
+            Console.WriteLine(e);
             return AddTempRecipeImageStatusCode.Error;
         }
     }

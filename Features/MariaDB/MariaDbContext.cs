@@ -14,7 +14,7 @@ public partial class MariaDbContext : Microsoft.EntityFrameworkCore.DbContext, I
     public DbSet<IdentityTokenDataModel> IdentityTokens {get; set;} = null!;
 
     public DbSet<RecipeImageInfoDataModel> RecipeImages {get; set;} = null!;
-    public DbSet<RecipeImageInfoDataModel> TempRecipeImages {get; set;} = null!;
+    public DbSet<TempRecipeImageInfoDataModel> TempRecipeImages {get; set;} = null!;
 
     public DbSet<RecipeDataModel> Recipes {get; set;} = null!;
     public MariaDbContext(DbContextOptions<MariaDbContext> options)
