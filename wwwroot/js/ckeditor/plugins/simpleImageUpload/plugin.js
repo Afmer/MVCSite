@@ -16,9 +16,30 @@ CKEDITOR.plugins.add( 'simpleImageUpload', {
 				processData: false,
 				data: imageData,
 			}).done(function(done) {
-				var ele = editor.document.createElement('img');
-				ele.setAttribute('src', done.url);
-				editor.insertElement(ele);
+                var tempImg = new Image();
+                tempImg.src = done.url;
+                tempImg.onload = function () {
+                  var maxWidth = 400;
+                  var maxHeight = 300;
+
+                  var newWidth, newHeight;
+                  if (tempImg.width > maxWidth || tempImg.height > maxHeight) {
+                    var widthRatio = maxWidth / tempImg.width;
+                    var heightRatio = maxHeight / tempImg.height;
+                    var scaleRatio = Math.min(widthRatio, heightRatio);
+                    newWidth = Math.floor(tempImg.width * scaleRatio);
+                    newHeight = Math.floor(tempImg.height * scaleRatio);
+                  } else {
+                    newWidth = tempImg.width;
+                    newHeight = tempImg.height;
+                  }
+        
+                  var ele = editor.document.createElement('img');
+                  ele.setAttribute('src', done.url);
+                  ele.setAttribute('width', newWidth);
+                  ele.setAttribute('height', newHeight);
+                  editor.insertElement(ele);
+                };
 			});
 
         })
