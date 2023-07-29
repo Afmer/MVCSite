@@ -4,6 +4,8 @@ using MVCSite.Interfaces;
 using MVCSite.Models;
 using MVCSite.Features.Enums;
 using MVCSite.Features.Extensions.Constants;
+using Microsoft.AspNetCore.Authorization;
+
 namespace MVCSite.Areas.api.Controllers;
 [Area("api")]
 public class ImageController : Controller
@@ -17,6 +19,7 @@ public class ImageController : Controller
         _db = db;
         _imageService = imageService;
     }
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> UploadRecipeImage()
     {
