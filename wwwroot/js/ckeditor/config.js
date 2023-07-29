@@ -36,5 +36,5 @@ CKEDITOR.editorConfig = function( config ) {
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
 };
-CKEDITOR.config.extraPlugins = ['simpleImageUpload', 'blockimagepaste'];
+CKEDITOR.config.extraPlugins = ['simpleImageUpload', 'blockimagepaste', 'autogrow'];
 CKEDITOR.config.uploadUrl = "/api/Image/UploadRecipeImage";
