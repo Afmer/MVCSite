@@ -4,7 +4,7 @@
 }
 <section>
     <script src ="~/js/ckeditor/ckeditor.js"></script>
-    @using (Html.BeginForm("Edit", "Recipe", FormMethod.Post))
+    @using (Html.BeginForm("Edit", "Recipe", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         <div>
             <h2>@Html.DisplayNameFor(m => m.Label)</h2>
