@@ -1,5 +1,6 @@
 using MVCSite.Interfaces;
 using MVCSite.Features.Enums;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace MVCSite.Features.Services;
 
@@ -14,13 +15,14 @@ public class ImageService : IImageService
     {
         if(uploadedFile == null)
             return (null!, Guid.Empty, ImageUploadStatusCode.Error);
+        if(!IsImage(uploadedFile))
+            return (null!, Guid.Empty, ImageUploadStatusCode.Error);
         var id = Guid.NewGuid();
         var imagePath = _hostEnviroment + $"/AppData/{area}/" + id.ToString() + ".jpg";
-        using (var fileStream = new FileStream(imagePath, FileMode.Create))
-        {
-            await uploadedFile.CopyToAsync(fileStream);
-        }
-        return ("/api/Image/Show?" + "id=" + id.ToString() + '&' + "imageArea=" + area, id, ImageUploadStatusCode.Success);
+        if(await SaveAsJpg(uploadedFile, imagePath))
+            return ("/api/Image/Show?" + "id=" + id.ToString() + '&' + "imageArea=" + area, id, ImageUploadStatusCode.Success);
+        else
+            return (null!, Guid.Empty, ImageUploadStatusCode.Error);
     }
     public async Task<bool> Delete(Guid id, string area)
     {
@@ -41,6 +43,31 @@ public class ImageService : IImageService
         {
             Console.WriteLine(ex.Message);
             return  false;
+        }
+    }
+    private static bool IsImage(IFormFile file)
+    {
+        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+        string fileExtension = Path.GetExtension(file.FileName).ToLower();
+        return allowedExtensions.Contains(fileExtension);
+    }
+
+    private static async Task<bool> SaveAsJpg(IFormFile file, string targetImagePath)
+    {
+        try
+        {
+            using (var image = Image.Load(file.OpenReadStream()))
+            {
+                // Сохраняем изображение в формате JPEG с максимальным качеством (100)
+                var jpegEncoder = new JpegEncoder { Quality = 100 };
+                await image.SaveAsync(targetImagePath, jpegEncoder);
+                return true;
+            }
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return false;
         }
     }
 }
