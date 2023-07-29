@@ -15,4 +15,7 @@ public interface IDBManager
        public IdentityTokenDataModel GetIdentityToken(string token);
        public bool IsHasRecipe(Guid id);
        public Task<AddTempRecipeImageStatusCode> AddTempRecipeImage(TempRecipeImageInfoDataModel image);
+       public Task<(MigrateTempImageStatusCode Status, IEnumerable<TempRecipeImageInfoDataModel> ImageForDelete)> CheckAndMigrateTempImages(IEnumerable<Guid> ids, Guid recipeId);
+       public Task<bool> AddRecipe(RecipeDataModel recipe);
+       public RecipeDataModel GetRecipe(Guid id);
 }

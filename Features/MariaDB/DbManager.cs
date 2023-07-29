@@ -213,4 +213,78 @@ public class DbManager : IDBManager
             return AddTempRecipeImageStatusCode.Error;
         }
     }
+    public async Task<(MigrateTempImageStatusCode Status, IEnumerable<TempRecipeImageInfoDataModel> ImageForDelete)> CheckAndMigrateTempImages(IEnumerable<Guid> ids, Guid recipeId)
+    {
+        var imagesForDelete = new Queue<TempRecipeImageInfoDataModel>();
+        var sortedIds = ids.OrderBy(x => x);
+        var idsEnumerator = sortedIds.GetEnumerator();
+        var tempImages = _dbContext.TempRecipeImages.Where(x => x.RecipeId == recipeId).OrderBy(x => x.Id).ToList();
+        var tempImagesEnumerator = tempImages.GetEnumerator();
+        Func<TempRecipeImageInfoDataModel, RecipeImageInfoDataModel> ConvertEntry = entry => 
+        {
+            var result = new RecipeImageInfoDataModel();
+            result.DateOfCreation = entry.DateOfCreation;
+            result.Id = entry.Id;
+            result.RecipeId = entry.RecipeId;
+            return result;
+        };
+        while(idsEnumerator.MoveNext() && tempImagesEnumerator.MoveNext())
+        {
+            var currentGuid = idsEnumerator.Current;
+            var currentTempImage = tempImagesEnumerator.Current;
+            if(currentGuid == currentTempImage.Id)
+            {
+                _dbContext.RecipeImages.Add(ConvertEntry(currentTempImage));
+            }
+            else
+            {
+                while(currentGuid != currentTempImage.Id)
+                {
+                    imagesForDelete.Enqueue(currentTempImage);
+                    if(tempImagesEnumerator.MoveNext())
+                        currentTempImage = tempImagesEnumerator.Current;
+                    else
+                        break;
+
+                }
+                if(currentGuid == currentTempImage.Id)
+                    _dbContext.RecipeImages.Add(ConvertEntry(currentTempImage));
+            }
+        }
+        while(tempImagesEnumerator.MoveNext())
+            imagesForDelete.Enqueue(tempImagesEnumerator.Current);
+        var deletedEntities = _dbContext.TempRecipeImages.Where(x => x.RecipeId == recipeId).ToArray();
+        if(deletedEntities.Any())
+            _dbContext.TempRecipeImages.RemoveRange(deletedEntities);
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return (MigrateTempImageStatusCode.Success, imagesForDelete);
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return (MigrateTempImageStatusCode.Error, imagesForDelete);
+        }
+    }
+
+    public async Task<bool> AddRecipe(RecipeDataModel recipe)
+    {
+        try
+        {
+            _dbContext.Recipes.Add(recipe);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return false;
+        }
+    }
+    public RecipeDataModel GetRecipe(Guid id)
+    {
+        var recipe = _dbContext.Recipes.Find(id);
+        return recipe!;
+    }
 }
