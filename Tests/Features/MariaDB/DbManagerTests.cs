@@ -313,6 +313,57 @@ public class DbManagerTests
             Assert.Fail();
         ((MariaDbContext)dbContext).Database.EnsureDeleted();
     }
+    [Test]
+    public void CheckTempImagesLifeTimeTest()
+    {
+        var dbContext = CreateContext("CheckTempImagesLifeTimeTest");
+        var dbManager = new DbManager(dbContext);
+
+        var config = new TimeConfiguration(){Hours = 12};
+
+        var validImages = new List<TempRecipeImageInfoDataModel>();
+        var invalidImages = new List<TempRecipeImageInfoDataModel>();
+        var rnd = new Random();
+        for(int i = 0; i < 1000; i++)
+        {
+            int hours = 0;
+            while(hours == 0 || hours == config.Hours)
+                hours = rnd.Next(48);
+            var overTimeSpan = new TimeSpan(hours, 0, 0);
+            var image = new TempRecipeImageInfoDataModel(){Id = Guid.NewGuid(), DateOfCreation = DateTime.UtcNow - overTimeSpan, RecipeId = Guid.NewGuid()};
+            dbContext.TempRecipeImages.Add(image);
+            if(hours <= config.Hours)
+                validImages.Add(image);
+            else
+                invalidImages.Add(image);
+        }
+        dbContext.SaveChanges();
+        var result = dbManager.CheckTempImagesLifeTime(config).Result;
+        Assert.True(result.Success);
+        foreach(var image in invalidImages)
+        {
+            var entry = dbContext.TempRecipeImages.Find(image.Id);
+            Assert.True(entry == null);
+        }
+        foreach(var image in validImages)
+        {
+            var entry = dbContext.TempRecipeImages.Find(image.Id);
+            Assert.True(entry != null);
+        }
+        var sortedInvalidImages = invalidImages.OrderBy(x => x.Id).ToArray();
+        var sortedDeletedImages = result.DeletedImages.OrderBy(x => x).ToArray();
+        if(sortedDeletedImages.Length == sortedInvalidImages.Length)
+        {
+            for(int i = 0; i < sortedDeletedImages.Length; i++)
+            {
+                Assert.True(sortedInvalidImages[i].Id == sortedDeletedImages[i]);
+            }
+        }
+        else
+            Assert.Fail();
+
+        ((MariaDbContext)dbContext).Database.EnsureDeleted();
+    }
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
