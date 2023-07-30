@@ -54,6 +54,7 @@ public class RecipeController : Controller
     {
         if(!ModelState.IsValid) return View(model);
         IEnumerable<TempRecipeImageInfoDataModel> imageForDelete = null!;
+        Guid labelImage = Guid.Empty;
         var transactionResult = await _dbManager.ExecuteInTransaction(async () => 
         {
             var recipe = new RecipeDataModel();
@@ -61,6 +62,11 @@ public class RecipeController : Controller
             recipe.DateOfCreation = DateTime.UtcNow;
             recipe.Id = model.RecipeId;
             recipe.Label = model.Label;
+            var imageUploadResult = await _imageService.Upload(model.LabelImage!, "LabelImages");
+            if(imageUploadResult.Status != ImageUploadStatusCode.Success)
+                throw new Exception("Label image upload failed");
+            recipe.LabelImage = imageUploadResult.Id;
+            labelImage = imageUploadResult.Id;
             var claim = HttpContext.User.FindFirst(c => c.Type == CookieType.IdentityToken);
             IdentityTokenDataModel tokenData = null!;
             if(claim != null)
@@ -105,6 +111,8 @@ public class RecipeController : Controller
             if(result.Success)
                 foreach(var imageId in result.DeletedImages)
                     await _imageService.Delete(imageId, "RecipeImages");
+            if(labelImage != Guid.Empty)
+                await _imageService.Delete(labelImage, "LabelImages");
             Console.WriteLine(transactionResult.Exception.Message);
             return Content("unknown error");
         }

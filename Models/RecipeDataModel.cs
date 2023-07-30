@@ -11,6 +11,8 @@ public class RecipeDataModel
     [Required]
     public string? Label {get; set;}
     [Required]
+    public Guid LabelImage {get; set;}
+    [Required]
     public string? AuthorLogin {get; set;}
     [Required]
     public DateTime DateOfCreation {get; set;}
