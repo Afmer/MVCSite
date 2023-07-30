@@ -24,32 +24,33 @@ public class RecipeController : Controller
     [HttpGet]
     public IActionResult Edit(string id = "")
     {
-        if(id == "")
-        {
-            var model = new EditRecipeModel();
-            model.RecipeId = Guid.NewGuid();
-            var cookieOptions = new CookieOptions
-            {
-                // Устанавливаем время жизни куки (опционально)
-                Expires = DateTime.Now.AddHours(24) // Куки будет действительно в течение 1 часа
-            };
-
-            // Устанавливаем значение куки
-            Response.Cookies.Append(CookieType.RecipeID, model.RecipeId.ToString(), cookieOptions);
-            return View(model);
-        }
-        else if(_dbManager.IsHasRecipe(new Guid(id)))
-        {
-            throw new NotImplementedException();
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
     }
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Edit(EditRecipeModel model)
+    public Task<IActionResult> Edit(EditRecipeModel model)
+    {
+        throw new NotImplementedException();
+    }
+    [Authorize]
+    [HttpGet] 
+    public IActionResult Create()
+    {
+        var model = new CreateRecipeModel();
+        model.RecipeId = Guid.NewGuid();
+        var cookieOptions = new CookieOptions
+        {
+            // Устанавливаем время жизни куки (опционально)
+            Expires = DateTime.Now.AddHours(24) // Куки будет действительно в течение 1 часа
+        };
+
+        // Устанавливаем значение куки
+        Response.Cookies.Append(CookieType.RecipeID, model.RecipeId.ToString(), cookieOptions);
+        return View(model);
+    }
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateRecipeModel model)
     {
         if(!ModelState.IsValid) return View(model);
         var recipe = new RecipeDataModel();
