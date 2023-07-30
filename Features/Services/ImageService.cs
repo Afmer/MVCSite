@@ -19,6 +19,23 @@ public class ImageService : IImageService
             return (null!, Guid.Empty, ImageUploadStatusCode.Error);
         var id = Guid.NewGuid();
         var imagePath = _hostEnviroment + $"/AppData/{area}/" + id.ToString() + ".jpg";
+        var imageFolderPath = _hostEnviroment + $"/AppData/{area}/";
+        if (Directory.Exists(imageFolderPath))
+        {
+            Console.WriteLine("Путь уже существует.");
+        }
+        else
+        {
+            try
+            {
+                Directory.CreateDirectory(imageFolderPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при создании пути: {ex.Message}");
+                return (null!, Guid.Empty, ImageUploadStatusCode.PathCreationError);
+            }
+        }
         if(await SaveAsJpg(uploadedFile, imagePath))
             return ("/api/Image/Show?" + "id=" + id.ToString() + '&' + "imageArea=" + area, id, ImageUploadStatusCode.Success);
         else
