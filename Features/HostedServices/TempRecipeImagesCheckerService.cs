@@ -51,7 +51,7 @@ public class TempRecipeImagesCheckerService : IHostedService, IDisposable
             if(result.Success)
             {
                 foreach(var imageName in result.DeletedImages)
-                    await imageService.Delete(imageName, "RecipeImages");
+                    await imageService.Delete(imageName, AppDataFolders.RecipeImages);
             }
         }
     }

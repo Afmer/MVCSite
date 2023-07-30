@@ -30,7 +30,7 @@ public class ImageController : Controller
         if(recipeIdStr == null)
             return Content("{\"status\"=\"error\"}", "application/json");
         Guid recipeId = new Guid(Request.Cookies[CookieType.RecipeID]!);
-        var imageUploadResult = await _imageService.Upload(uploadedFile, "RecipeImages");
+        var imageUploadResult = await _imageService.Upload(uploadedFile, AppDataFolders.RecipeImages);
         if(imageUploadResult.Status == ImageUploadStatusCode.Success)
         {
             var image = new TempRecipeImageInfoDataModel();

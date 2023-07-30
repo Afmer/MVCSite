@@ -62,7 +62,7 @@ public class RecipeController : Controller
             recipe.DateOfCreation = DateTime.UtcNow;
             recipe.Id = model.RecipeId;
             recipe.Label = model.Label;
-            var imageUploadResult = await _imageService.Upload(model.LabelImage!, "LabelImages");
+            var imageUploadResult = await _imageService.Upload(model.LabelImage!, AppDataFolders.LabelImages);
             if(imageUploadResult.Status != ImageUploadStatusCode.Success)
                 throw new Exception("Label image upload failed");
             recipe.LabelImage = imageUploadResult.Id;
@@ -100,7 +100,7 @@ public class RecipeController : Controller
             {
                 foreach(var image in imageForDelete)
                 {
-                    await _imageService.Delete(image.Id, "RecipeImages");
+                    await _imageService.Delete(image.Id, AppDataFolders.RecipeImages);
                 }
             }
             return LocalRedirect("~/Home/Index");
@@ -110,9 +110,9 @@ public class RecipeController : Controller
             var result = await _dbManager.DeleteAllTempRecipeImages(model.RecipeId);
             if(result.Success)
                 foreach(var imageId in result.DeletedImages)
-                    await _imageService.Delete(imageId, "RecipeImages");
+                    await _imageService.Delete(imageId, AppDataFolders.RecipeImages);
             if(labelImage != Guid.Empty)
-                await _imageService.Delete(labelImage, "LabelImages");
+                await _imageService.Delete(labelImage, AppDataFolders.LabelImages);
             Console.WriteLine(transactionResult.Exception.Message);
             return Content("unknown error");
         }
