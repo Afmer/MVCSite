@@ -53,41 +53,62 @@ public class RecipeController : Controller
     public async Task<IActionResult> Create(CreateRecipeModel model)
     {
         if(!ModelState.IsValid) return View(model);
-        var recipe = new RecipeDataModel();
-        recipe.Content = model.Content;
-        recipe.DateOfCreation = DateTime.UtcNow;
-        recipe.Id = model.RecipeId;
-        recipe.Label = model.Label;
-        var claim = HttpContext.User.FindFirst(c => c.Type == CookieType.IdentityToken);
-        IdentityTokenDataModel tokenData = null!;
-        if(claim != null)
+        IEnumerable<TempRecipeImageInfoDataModel> imageForDelete = null!;
+        var transactionResult = await _dbManager.ExecuteInTransaction(async () => 
         {
-            var token = claim.Value;
-            tokenData = _dbManager.GetIdentityToken(token);
-            if(tokenData == null)
-                return Content("unknown error");
+            var recipe = new RecipeDataModel();
+            recipe.Content = model.Content;
+            recipe.DateOfCreation = DateTime.UtcNow;
+            recipe.Id = model.RecipeId;
+            recipe.Label = model.Label;
+            var claim = HttpContext.User.FindFirst(c => c.Type == CookieType.IdentityToken);
+            IdentityTokenDataModel tokenData = null!;
+            if(claim != null)
+            {
+                var token = claim.Value;
+                tokenData = _dbManager.GetIdentityToken(token);
+                if(tokenData == null)
+                    throw new Exception("token not defined");
+            }
+            else
+            {
+                throw new Exception("token not defined");
+            }
+            recipe.AuthorLogin = tokenData.Login;
+            var addRecipeResult = await _dbManager.AddRecipe(recipe);
+            if(!addRecipeResult)
+                new Exception("Recipe hasn't been added in database");
+            var matches = Regex.Matches(model.Content!, @"<img\s+[^>]*src=""\/api\/Image\/Show\?id=(?<id>[^&]*)&amp;imageArea=RecipeImages""[^>]*>");
+            var ids = new Queue<Guid>();
+            foreach(Match match in matches)
+                ids.Enqueue(new Guid(match.Groups["id"].Value));
+            var CheckAndMigrateResult = await _dbManager.CheckAndMigrateTempImages(ids, model.RecipeId);
+            if(CheckAndMigrateResult.Status != MigrateTempImageStatusCode.Success)
+                throw new Exception("Image migration failed");
+            imageForDelete = CheckAndMigrateResult.ImageForDelete;
+            throw new Exception();
+        });
+        Response.Cookies.Delete(CookieType.RecipeID);
+        if(transactionResult.Success)
+        {
+            if(imageForDelete != null)
+            {
+                foreach(var image in imageForDelete)
+                {
+                    await _imageService.Delete(image.Id, "RecipeImages");
+                }
+            }
+            return LocalRedirect("~/Home/Index");
         }
         else
         {
+            var result = await _dbManager.DeleteAllTempRecipeImages(model.RecipeId);
+            if(result.Success)
+                foreach(var imageId in result.DeletedImages)
+                    await _imageService.Delete(imageId, "RecipeImages");
+            Console.WriteLine(transactionResult.Exception.Message);
             return Content("unknown error");
         }
-        recipe.AuthorLogin = tokenData.Login;
-        var addRecipeResult = await _dbManager.AddRecipe(recipe);
-        var matches = Regex.Matches(model.Content!, @"<img\s+[^>]*src=""\/api\/Image\/Show\?id=(?<id>[^&]*)&amp;imageArea=RecipeImages""[^>]*>");
-        Response.Cookies.Delete(CookieType.RecipeID);
-        var ids = new Queue<Guid>();
-        foreach(Match match in matches)
-            ids.Enqueue(new Guid(match.Groups["id"].Value));
-        if(!addRecipeResult)
-            return Content("unknown error");
-        var CheckAndMigrateResult = await _dbManager.CheckAndMigrateTempImages(ids, model.RecipeId);
-        if(CheckAndMigrateResult.Status != MigrateTempImageStatusCode.Success)
-            return Content("unknown error");
-        foreach(var image in CheckAndMigrateResult.ImageForDelete)
-        {
-            await _imageService.Delete(image.Id, "RecipeImages");
-        }
-        return LocalRedirect("~/Home/Index");
     }
     [HttpGet]
     public IActionResult Show(Guid id)
