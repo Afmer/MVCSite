@@ -38,7 +38,22 @@ builder.Services.AddAuthorization(opts =>
     opts.AddPolicy(PolicyName.AdminHierarchy, policy => policy.Requirements.Add(new RoleHierarсhyRequirement(Role.Admin)));
 });
 builder.Services.AddHostedService<IdentityTokenLifeTimeService>();
+
 var app = builder.Build();
+using(var scope = app.Services.CreateScope())
+{
+    using(var dbContext = scope.ServiceProvider.GetRequiredService<MariaDbContext>())
+    {
+        try
+        {
+            dbContext.Database.EnsureCreated();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}
 
 app.UseAuthentication();
 app.UseAuthorization();   // добавление middleware авторизации 
@@ -69,5 +84,4 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
 app.Run();
