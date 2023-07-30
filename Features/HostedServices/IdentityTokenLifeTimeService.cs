@@ -9,7 +9,6 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
     private readonly IServiceProvider _serviceProvider;
     private readonly AuthLifeTimeConfiguration _authLifeTime;
     private readonly CheckIdentityTimerConfiguration _timerConfiguration;
-    private bool isFirstLaunch = true;
     public void Dispose()
     {
         _timer?.Dispose();
@@ -31,14 +30,6 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
 
     private async void ScheduledMethod(object? state)
     {
-        if(isFirstLaunch)
-        {
-            isFirstLaunch = false;
-            _timer.Change(Timeout.Infinite, 0);
-            Thread.Sleep(10000);
-            var timer = new TimeSpan(_timerConfiguration.Days, _timerConfiguration.Hours, _timerConfiguration.Minutes, _timerConfiguration.Seconds);
-            _timer.Change(TimeSpan.Zero, timer);
-        }
         using (var scope = _serviceProvider.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<IDBManager>();
