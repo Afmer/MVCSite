@@ -77,7 +77,7 @@ public class RecipeController : Controller
             recipe.AuthorLogin = tokenData.Login;
             var addRecipeResult = await _dbManager.AddRecipe(recipe);
             if(!addRecipeResult)
-                new Exception("Recipe hasn't been added in database");
+                throw new Exception("Recipe hasn't been added in database");
             var matches = Regex.Matches(model.Content!, @"<img\s+[^>]*src=""\/api\/Image\/Show\?id=(?<id>[^&]*)&amp;imageArea=RecipeImages""[^>]*>");
             var ids = new Queue<Guid>();
             foreach(Match match in matches)
@@ -86,7 +86,6 @@ public class RecipeController : Controller
             if(CheckAndMigrateResult.Status != MigrateTempImageStatusCode.Success)
                 throw new Exception("Image migration failed");
             imageForDelete = CheckAndMigrateResult.ImageForDelete;
-            throw new Exception();
         });
         Response.Cookies.Delete(CookieType.RecipeID);
         if(transactionResult.Success)
