@@ -326,4 +326,19 @@ public class DbManager : IDBManager
             }
         }
     }
+    public async Task<(bool Success, Guid[] DeletedImages)> DeleteAllTempRecipeImages(Guid recipeId)
+    {
+        try
+        {
+            var imagesForDelete = _dbContext.TempRecipeImages.Where(x => x.RecipeId == recipeId);
+            var deletedImages = imagesForDelete.Select(x => x.Id).ToArray();
+            _dbContext.TempRecipeImages.RemoveRange(imagesForDelete);
+            await _dbContext.SaveChangesAsync();
+            return (true, deletedImages);
+        }
+        catch
+        {
+            return (false, null!);
+        }
+    }
 }

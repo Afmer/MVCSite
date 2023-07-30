@@ -20,4 +20,5 @@ public interface IDBManager
        public RecipeDataModel GetRecipe(Guid id);
        public Task<(bool Success, Guid[] DeletedImages)> CheckTempImagesLifeTime(TimeConfiguration config);
        public Task<(bool Success, Exception Exception)> ExecuteInTransaction(Func<Task> func);
+       public Task<(bool Success, Guid[] DeletedImages)> DeleteAllTempRecipeImages(Guid recipeId);
 }
