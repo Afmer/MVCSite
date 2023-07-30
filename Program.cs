@@ -38,6 +38,7 @@ builder.Services.AddAuthorization(opts =>
     opts.AddPolicy(PolicyName.AdminHierarchy, policy => policy.Requirements.Add(new RoleHierarсhyRequirement(Role.Admin)));
 });
 builder.Services.AddHostedService<IdentityTokenLifeTimeService>();
+builder.Services.AddHostedService<TempRecipeImagesCheckerService>();
 
 var app = builder.Build();
 using(var scope = app.Services.CreateScope())

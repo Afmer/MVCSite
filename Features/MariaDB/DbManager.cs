@@ -287,4 +287,26 @@ public class DbManager : IDBManager
         var recipe = _dbContext.Recipes.Find(id);
         return recipe!;
     }
+
+    public async Task<(bool Success, Guid[] DeletedImages)> CheckTempImagesLifeTime(TimeConfiguration config)
+    {
+        Func<TempRecipeImageInfoDataModel, bool> predicate = obj =>
+        {
+            var timeSpan = new TimeSpan(config.Days, config.Hours, config.Minutes, config.Seconds);
+            var timeAuthorization = DateTime.UtcNow - obj.DateOfCreation;
+            return timeAuthorization > timeSpan;
+        };
+        try
+        {
+            var timedOutEntries = _dbContext.TempRecipeImages.Where(predicate);
+            var deletedImages = timedOutEntries.Select(x => x.Id).ToArray();
+            _dbContext.TempRecipeImages.RemoveRange(timedOutEntries);
+            await _dbContext.SaveChangesAsync();
+            return (true, deletedImages);
+        }
+        catch
+        {
+            return (false, null!);
+        }
+    }
 }

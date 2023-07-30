@@ -18,4 +18,5 @@ public interface IDBManager
        public Task<(MigrateTempImageStatusCode Status, IEnumerable<TempRecipeImageInfoDataModel> ImageForDelete)> CheckAndMigrateTempImages(IEnumerable<Guid> ids, Guid recipeId);
        public Task<bool> AddRecipe(RecipeDataModel recipe);
        public RecipeDataModel GetRecipe(Guid id);
+       public Task<(bool Success, Guid[] DeletedImages)> CheckTempImagesLifeTime(TimeConfiguration config);
 }
