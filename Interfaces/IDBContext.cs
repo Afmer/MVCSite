@@ -13,4 +13,5 @@ public interface IDBContext
     public DbSet<TempRecipeImageInfoDataModel> TempRecipeImages {get;}
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
     public int SaveChanges();
+    public Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database {get;}
 }

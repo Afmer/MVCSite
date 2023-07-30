@@ -309,4 +309,21 @@ public class DbManager : IDBManager
             return (false, null!);
         }
     }
+    public async Task<(bool Success, Exception Exception)> ExecuteInTransaction(Func<Task> func)
+    {
+        using(var transaction = await _dbContext.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                await func.Invoke();
+                await transaction.CommitAsync();
+                return (true, null!);
+            }
+            catch(Exception e)
+            {
+                await transaction.RollbackAsync();
+                return (false, e);
+            }
+        }
+    }
 }
