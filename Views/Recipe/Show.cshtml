@@ -1,7 +1,61 @@
 @model ShowModel
-@{
-    string content = Model.Content;
-}
 <section>
-    @Html.Raw(content)
+<head>
+    <style>
+        .recipe-container {
+            padding-left: 15%;
+            padding-right: 15%;
+        }
+        .rectangle {
+            padding: 5%; /* Регулируем отступы внутри прямоугольника */
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Задаем тень: смещение по горизонтали, смещение по вертикали, радиус размытия и цвет тени */
+        }
+        .image-container {
+            padding-top: 1%;
+            padding-left: 15%;
+            padding-right: 15%;
+            max-width: 100%;
+            max-height: 100%;
+            word-wrap: break-word;
+        }
+        .image-container body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 100%;
+        max-height: 100%;
+        }
+
+        .image-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        }
+        .autowrap {
+            max-width: 100%;
+            max-height: 100%;
+            overflow-wrap: break-all;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<div class="rectangle">
+    <div class="image-container">
+        <h1 class ="autowrap">@Model.Label</h1>
+        <span class="image main">
+            <img src="@Model.LabelImageLink" alt="Картинка"/>
+        </span>
+    </div>
+</div>
+<hr>
+<div class="rectangle">
+    <div class="recipe-container">
+        <section>
+            @Html.Raw(Model.Content)
+        </section>
+    </div>
+</div>
 </section>

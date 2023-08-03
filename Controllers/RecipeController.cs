@@ -121,8 +121,9 @@ public class RecipeController : Controller
     public IActionResult Show(Guid id)
     {
         var recipe = _dbManager.GetRecipe(id);
+        string labelLink = _imageService.GetLink(recipe.LabelImage, AppDataFolders.LabelImages);
         if(recipe != null && recipe.Content != null)
-            return View(new ShowModel(){Content = recipe.Content});
+            return View(new ShowModel(){Content = recipe.Content, Label = recipe.Label!, LabelImageLink = labelLink});
         else
             return Content("");
     }
