@@ -1,4 +1,4 @@
-namespace MVCSite.Features.Configurations;
+namespace MVCSite.Settings;
 public static class DBSettings
 {
     public const int LoginMaxLength = 20;

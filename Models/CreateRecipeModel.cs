@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using MVCSite.Features.Configurations;
+using MVCSite.Settings;
 
 namespace MVCSite.Models;
 public class CreateRecipeModel

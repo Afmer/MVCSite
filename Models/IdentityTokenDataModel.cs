@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using MVCSite.Features.Configurations;
+using MVCSite.Settings;
 
 namespace MVCSite.Models;
 [PrimaryKey(nameof(IdentityToken))]

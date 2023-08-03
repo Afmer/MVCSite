@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using MVCSite.Features.Configurations;
+using MVCSite.Settings;
 
 namespace MVCSite.Models;
 public class RegisterModel

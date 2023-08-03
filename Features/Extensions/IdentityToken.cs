@@ -1,4 +1,4 @@
-using MVCSite.Features.Configurations;
+using MVCSite.Settings;
 namespace MVCSite.Features.Extensions;
 public static class IdentityToken
 {
