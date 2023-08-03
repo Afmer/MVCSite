@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using MVCSite.Features.Configurations;
 
 namespace MVCSite.Models;
 public class CreateRecipeModel
 {
     [Display(Name = "Оглавление")]
     [Required]
+    [StringLength(DBSettings.LabelMaxLength)]
     public string? Label {get; set;}
 
     [Display(Name = "Обложка")]
