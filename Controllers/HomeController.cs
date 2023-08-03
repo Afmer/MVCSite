@@ -15,7 +15,7 @@ public class HomeController : Controller
         _logger = logger;
         _db = db;
     }
-    public IActionResult Index(string id = "null")
+    public IActionResult Index()
     {
         //id = WeatherForecastService.FindOne(1).Result.Id.ToString();
         ViewBag.id = "kururin";

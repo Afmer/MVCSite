@@ -1,3 +1,4 @@
+#pragma warning disable IDE0042
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,8 +37,10 @@ public class RecipeController : Controller
     [HttpGet] 
     public IActionResult Create()
     {
-        var model = new CreateRecipeModel();
-        model.RecipeId = Guid.NewGuid();
+        var model = new CreateRecipeModel
+        {
+            RecipeId = Guid.NewGuid()
+        };
         var cookieOptions = new CookieOptions
         {
             // Устанавливаем время жизни куки (опционально)
@@ -57,11 +60,13 @@ public class RecipeController : Controller
         Guid labelImage = Guid.Empty;
         var transactionResult = await _dbManager.ExecuteInTransaction(async () => 
         {
-            var recipe = new RecipeDataModel();
-            recipe.Content = model.Content;
-            recipe.DateOfCreation = DateTime.UtcNow;
-            recipe.Id = model.RecipeId;
-            recipe.Label = model.Label;
+            var recipe = new RecipeDataModel
+            {
+                Content = model.Content,
+                DateOfCreation = DateTime.UtcNow,
+                Id = model.RecipeId,
+                Label = model.Label
+            };
             var imageUploadResult = await _imageService.Upload(model.LabelImage!, AppDataFolders.LabelImages);
             if(imageUploadResult.Status != ImageUploadStatusCode.Success)
                 throw new Exception("Label image upload failed");
@@ -86,7 +91,7 @@ public class RecipeController : Controller
                 throw new Exception("Recipe hasn't been added in database");
             var matches = Regex.Matches(model.Content!, @"<img\s+[^>]*src=""\/api\/Image\/Show\?id=(?<id>[^&]*)&amp;imageArea=RecipeImages""[^>]*>");
             var ids = new Queue<Guid>();
-            foreach(Match match in matches)
+            foreach(Match match in matches.Cast<Match>())
                 ids.Enqueue(new Guid(match.Groups["id"].Value));
             var CheckAndMigrateResult = await _dbManager.CheckAndMigrateTempImages(ids, model.RecipeId);
             if(CheckAndMigrateResult.Status != MigrateTempImageStatusCode.Success)

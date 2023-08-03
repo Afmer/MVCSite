@@ -7,7 +7,7 @@ using MVCSite.Models;
 namespace MVCSite.Features.MariaDB;
 public class DbManager : IDBManager 
 {
-    private static Dictionary<string, IdentityTokenDataModel> _identityTokensCache = new();
+    private static readonly Dictionary<string, IdentityTokenDataModel> _identityTokensCache = new();
     private readonly IDBContext _dbContext;
     
     public DbManager(IDBContext dbContext)
@@ -19,10 +19,9 @@ public class DbManager : IDBManager
     {
         lock(_identityTokensCache)
         {
-            IdentityTokenDataModel? result;
-            if(_identityTokensCache.TryGetValue(token, out result))
+            if (_identityTokensCache.TryGetValue(token, out IdentityTokenDataModel? result))
                 return result;
-            else 
+            else
                 return null!;
         }
     }
@@ -137,12 +136,12 @@ public class DbManager : IDBManager
 
     public async Task CheckTokensLifeTime(AuthLifeTimeConfiguration config)
     {
-        Func<IdentityTokenDataModel, bool> predicate = obj =>
+        bool predicate(IdentityTokenDataModel obj)
         {
             var timeSpan = new TimeSpan(config.Days, config.Hours, config.Minutes, config.Seconds);
             var timeAuthorization = DateTime.UtcNow - obj.DateUpdate;
             return timeAuthorization > timeSpan;
-        };
+        }
         DeleteIdentityWithPredicateFromCache(predicate);
         var timedOutEntries = _dbContext.IdentityTokens.Where(predicate);
         _dbContext.IdentityTokens.RemoveRange(timedOutEntries);
@@ -154,10 +153,7 @@ public class DbManager : IDBManager
         if(token == null)
             return;
         var removalRecord = GetIdentityInfoFromeCache(token);
-        if(removalRecord == null)
-        {
-            removalRecord = _dbContext.IdentityTokens.Find(token);
-        }
+        removalRecord ??= _dbContext.IdentityTokens.Find(token); //если removal = null, то removal присваивается значение
         if(removalRecord != null)
         {
             DeleteIdentityFromCache(token);
@@ -189,8 +185,7 @@ public class DbManager : IDBManager
         if(token == null)
             return null!;
         var tokenData = GetIdentityInfoFromeCache(token);
-        if(tokenData == null)
-            tokenData = _dbContext.IdentityTokens.Find(token);
+        tokenData ??= _dbContext.IdentityTokens.Find(token);
         return tokenData!;
     }
 
@@ -220,15 +215,18 @@ public class DbManager : IDBManager
         var idsEnumerator = sortedIds.GetEnumerator();
         var tempImages = _dbContext.TempRecipeImages.Where(x => x.RecipeId == recipeId).OrderBy(x => x.Id).ToList();
         var tempImagesEnumerator = tempImages.GetEnumerator();
-        Func<TempRecipeImageInfoDataModel, RecipeImageInfoDataModel> ConvertEntry = entry => 
+
+        static RecipeImageInfoDataModel ConvertEntry(TempRecipeImageInfoDataModel entry)
         {
-            var result = new RecipeImageInfoDataModel();
-            result.DateOfCreation = entry.DateOfCreation;
-            result.Id = entry.Id;
-            result.RecipeId = entry.RecipeId;
+            var result = new RecipeImageInfoDataModel
+            {
+                DateOfCreation = entry.DateOfCreation,
+                Id = entry.Id,
+                RecipeId = entry.RecipeId
+            };
             return result;
-        };
-        while(idsEnumerator.MoveNext() && tempImagesEnumerator.MoveNext())
+        }
+        while (idsEnumerator.MoveNext() && tempImagesEnumerator.MoveNext())
         {
             var currentGuid = idsEnumerator.Current;
             var currentTempImage = tempImagesEnumerator.Current;
@@ -290,12 +288,12 @@ public class DbManager : IDBManager
 
     public async Task<(bool Success, Guid[] DeletedImages)> CheckTempImagesLifeTime(TimeConfiguration config)
     {
-        Func<TempRecipeImageInfoDataModel, bool> predicate = obj =>
+        bool predicate(TempRecipeImageInfoDataModel obj)
         {
             var timeSpan = new TimeSpan(config.Days, config.Hours, config.Minutes, config.Seconds);
             var timeAuthorization = DateTime.UtcNow - obj.DateOfCreation;
             return timeAuthorization > timeSpan;
-        };
+        }
         try
         {
             var timedOutEntries = _dbContext.TempRecipeImages.Where(predicate);
@@ -311,19 +309,17 @@ public class DbManager : IDBManager
     }
     public async Task<(bool Success, Exception Exception)> ExecuteInTransaction(Func<Task> func)
     {
-        using(var transaction = await _dbContext.Database.BeginTransactionAsync())
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
         {
-            try
-            {
-                await func.Invoke();
-                await transaction.CommitAsync();
-                return (true, null!);
-            }
-            catch(Exception e)
-            {
-                await transaction.RollbackAsync();
-                return (false, e);
-            }
+            await func.Invoke();
+            await transaction.CommitAsync();
+            return (true, null!);
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            return (false, e);
         }
     }
     public async Task<(bool Success, Guid[] DeletedImages)> DeleteAllTempRecipeImages(Guid recipeId)

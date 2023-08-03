@@ -30,11 +30,9 @@ public class IdentityTokenLifeTimeService : IHostedService, IDisposable
 
     private async void ScheduledMethod(object? state)
     {
-        using (var scope = _serviceProvider.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<IDBManager>();
-            await db.CheckTokensLifeTime(_authLifeTime);
-        }
+        using var scope = _serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<IDBManager>();
+        await db.CheckTokensLifeTime(_authLifeTime);
     }
     public IdentityTokenLifeTimeService(IServiceProvider serviceProvider, IConfiguration configuration)
     {

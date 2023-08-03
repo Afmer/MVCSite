@@ -1,3 +1,4 @@
+#pragma warning disable IDE0042
 using Microsoft.AspNetCore.Mvc;
 using MVCSite.Features.Extensions.Constants;
 using MVCSite.Interfaces;
@@ -10,12 +11,10 @@ using MVCSite.Features.Enums;
 namespace MVCSite.Controllers;
 public class IdentityController : Controller
 {
-    private readonly ILogger<IdentityController> _logger;
     private readonly IDBManager _db;
     private readonly AuthLifeTimeConfiguration _authLifeTime;
-    public IdentityController(ILogger<IdentityController> logger, IDBManager db, IConfiguration configuration)
+    public IdentityController(IDBManager db, IConfiguration configuration)
     {
-        _logger = logger;
         _db = db;
         var tempLifeTime = configuration.GetSection("AuthLifeTime").Get<AuthLifeTimeConfiguration>();
         if(tempLifeTime != null)
@@ -52,7 +51,7 @@ public class IdentityController : Controller
             else if(loginResult.status == LoginStatusCode.Success)
             {
                 var claims = new List<Claim> { new Claim(CookieType.IdentityToken, loginResult.token) };
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+                var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
                 await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                 {
                     ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),
@@ -94,7 +93,7 @@ public class IdentityController : Controller
             if(registerResult.status == RegisterStatusCode.Success)
             {
                 var claims = new List<Claim> { new Claim(CookieType.IdentityToken, registerResult.token) };
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+                var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
                 await AuthenticationHttpContextExtensions.SignInAsync(HttpContext.Request.HttpContext, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                 {
                     ExpiresUtc = DateTimeOffset.UtcNow.Add(new TimeSpan(_authLifeTime.Days, _authLifeTime.Hours, _authLifeTime.Minutes, _authLifeTime.Seconds)),

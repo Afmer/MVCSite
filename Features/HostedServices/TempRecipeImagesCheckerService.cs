@@ -1,3 +1,4 @@
+#pragma warning disable IDE0042
 using MVCSite.Features.Configurations;
 using MVCSite.Features.Extensions.Constants;
 using MVCSite.Interfaces;
@@ -43,16 +44,14 @@ public class TempRecipeImagesCheckerService : IHostedService, IDisposable
 
     private async void ScheduledMethod(object? state)
     {
-        using (var scope = _serviceProvider.CreateScope())
+        using var scope = _serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<IDBManager>();
+        var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
+        var result = await db.CheckTempImagesLifeTime(_tempImageLifeTime);
+        if (result.Success)
         {
-            var db = scope.ServiceProvider.GetRequiredService<IDBManager>();
-            var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
-            var result = await db.CheckTempImagesLifeTime(_tempImageLifeTime);
-            if(result.Success)
-            {
-                foreach(var imageName in result.DeletedImages)
-                    await imageService.Delete(imageName, AppDataFolders.RecipeImages);
-            }
+            foreach (var imageName in result.DeletedImages)
+                await imageService.Delete(imageName, AppDataFolders.RecipeImages);
         }
     }
 }

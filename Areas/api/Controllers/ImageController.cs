@@ -29,15 +29,17 @@ public class ImageController : Controller
         string recipeIdStr = Request.Cookies[CookieType.RecipeID]!;
         if(recipeIdStr == null)
             return Content("{\"status\"=\"error\"}", "application/json");
-        Guid recipeId = new Guid(Request.Cookies[CookieType.RecipeID]!);
+        var recipeId = new Guid(Request.Cookies[CookieType.RecipeID]!);
         var imageUploadResult = await _imageService.Upload(uploadedFile, AppDataFolders.RecipeImages);
         if(imageUploadResult.Status == ImageUploadStatusCode.Success)
         {
-            var image = new TempRecipeImageInfoDataModel();
-            image.DateOfCreation = DateTime.UtcNow;
-            image.Id = imageUploadResult.Id;
-            image.RecipeId = recipeId;
-            if((await _db.AddTempRecipeImage(image)) == AddTempRecipeImageStatusCode.Error)
+            var image = new TempRecipeImageInfoDataModel
+            {
+                DateOfCreation = DateTime.UtcNow,
+                Id = imageUploadResult.Id,
+                RecipeId = recipeId
+            };
+            if ((await _db.AddTempRecipeImage(image)) == AddTempRecipeImageStatusCode.Error)
             {
                 throw new Exception();
             }

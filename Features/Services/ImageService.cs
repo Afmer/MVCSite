@@ -78,13 +78,11 @@ public class ImageService : IImageService
     {
         try
         {
-            using (var image = Image.Load(file.OpenReadStream()))
-            {
-                // Сохраняем изображение в формате JPEG с максимальным качеством (100)
-                var jpegEncoder = new JpegEncoder { Quality = 100 };
-                await image.SaveAsync(targetImagePath, jpegEncoder);
-                return true;
-            }
+            using var image = Image.Load(file.OpenReadStream());
+            // Сохраняем изображение в формате JPEG с максимальным качеством (100)
+            var jpegEncoder = new JpegEncoder { Quality = 100 };
+            await image.SaveAsync(targetImagePath, jpegEncoder);
+            return true;
         }
         catch(Exception e)
         {
