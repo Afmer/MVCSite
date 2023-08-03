@@ -62,6 +62,11 @@ public class ImageService : IImageService
             return  false;
         }
     }
+    public string GetLink(Guid id, string area)
+    {
+        string link = "/api/Image/Show?" + "id=" + id.ToString() + '&' + "imageArea=" + area;
+        return link;
+    }
     private static bool IsImage(IFormFile file)
     {
         string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
