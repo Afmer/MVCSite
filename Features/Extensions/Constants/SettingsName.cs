@@ -5,4 +5,5 @@ public static class SettingsName
     public const string CheckIdentityTokensSettings = "CheckIdentityTokensTimer";
     public const string TempImageLifeTimeSettings = "TempRecipeImageLifeTime";
     public const string CheckTempImageTimerlSettings = "CheckTempImageTimer";
+    public const string SphinxSettings = "SphinxSearch";
 }

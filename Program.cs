@@ -32,6 +32,8 @@ builder.Services.AddDbContextPool<MariaDbContext>(options => options
 builder.Services.AddScoped<IDBContext, MariaDbContext>();
 builder.Services.AddScoped<IDBManager, DbManager>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<ISearchService, SphinxService>();
+builder.Services.AddScoped<ISphinxConnector, SphinxConnectorService>();
 builder.Services.AddTransient<IAuthorizationHandler, RoleHierarсhyHandler>();
 builder.Services.AddAuthorization(opts => 
 {

@@ -1,0 +1,7 @@
+@model RecipesSearchModel
+<ul>
+    @foreach (var item in Model.SearchResults)
+    {
+        <li>@item.Label</li>
+    }
+</ul>

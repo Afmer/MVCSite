@@ -44,6 +44,16 @@ services:
     networks:
       bridge:
        ipv4_address: 172.10.1.6
+  sphinx:
+    image: sphinx-search
+    build:
+      context: .
+      dockerfile: ./DockerImages/SphinxSearch/Dockerfile
+    ports:
+      - 9311:9306
+    networks:
+      bridge:
+       ipv4_address: 172.10.1.7
 networks:
   bridge:
     driver: bridge
