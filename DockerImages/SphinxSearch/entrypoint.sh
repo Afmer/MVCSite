@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Функция для выполнения команды и ожидания 10 секунд в случае ошибки
 run_command() {
     indexer --all
     while [ $? -ne 0 ]; do
@@ -10,4 +9,9 @@ run_command() {
 }
 
 run_command
-searchd --nodetach
+
+searchd --nodetach &
+
+cron
+
+wait
