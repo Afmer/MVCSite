@@ -47,8 +47,8 @@ services:
   sphinx:
     image: sphinx-search
     build:
-      context: .
-      dockerfile: ./DockerImages/SphinxSearch/Dockerfile
+      context: ./DockerImages/SphinxSearch
+      dockerfile: Dockerfile
     ports:
       - 9311:9306
     networks:

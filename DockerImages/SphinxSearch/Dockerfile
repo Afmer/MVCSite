@@ -1,5 +1,7 @@
 FROM asigatchov/sphinx:2.2.11
 
-COPY ../../sphinx.conf /etc/sphinxsearch/sphinx.conf
+COPY sphinx.conf /etc/sphinxsearch/sphinx.conf
 RUN mkdir -p ./data
-CMD ["/bin/bash", "-c", "indexer --all;searchd --nodetach"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+CMD ["/entrypoint.sh"]
