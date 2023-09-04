@@ -34,6 +34,8 @@ builder.Services.AddScoped<IDBManager, DbManager>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ISearchService, SphinxService>();
 builder.Services.AddScoped<ISphinxConnector, SphinxConnectorService>();
+builder.Services.AddScoped<IRecipeSearchCacheService, SearchCacheService>();
+builder.Services.AddScoped<ISearchCacheUpdater, SearchCacheService>();
 builder.Services.AddTransient<IAuthorizationHandler, RoleHierarсhyHandler>();
 builder.Services.AddAuthorization(opts => 
 {
@@ -41,6 +43,7 @@ builder.Services.AddAuthorization(opts =>
 });
 builder.Services.AddHostedService<IdentityTokenLifeTimeService>();
 builder.Services.AddHostedService<TempRecipeImagesCheckerService>();
+builder.Services.AddHostedService<SearchCacheUpdaterService>();
 
 var app = builder.Build();
 using(var scope = app.Services.CreateScope())
