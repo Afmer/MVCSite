@@ -13,7 +13,7 @@ public class SearchController : Controller
     }
     public IActionResult Recipes(string query)
     {
-        var result = _searchService.Search(query);
+        var result = _searchService.SearchRecipes(query);
         var model = new RecipesSearchModel(){SearchResults = result};
         return View(model);
     }

@@ -4,5 +4,5 @@ namespace MVCSite.Interfaces;
 
 public interface ISearchService
 {
-    public RecipeSearchResult[] Search(string query);
+    public RecipeSearchResult[] SearchRecipes(string query);
 }

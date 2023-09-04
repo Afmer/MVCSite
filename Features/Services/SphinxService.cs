@@ -10,9 +10,18 @@ public class SphinxService : ISearchService
     {
         _sphinxConnector = sphinxConnector;
     }
-    public RecipeSearchResult[] Search(string query)
+    private List<object[]> Search(string query, string index, string[] attributes)
     {
-        var data = _sphinxConnector.GetData($"SELECT RecipeId, Label FROM RecipesIndex WHERE MATCH('{query}')");
+        string attributesStr = "";
+        for(int i = 0; i < attributes.Length - 1; i++)
+            attributesStr += attributes[i] + ", ";
+        attributesStr += attributes[^1];
+        var result = _sphinxConnector.GetData($"SELECT {attributesStr} FROM {index} WHERE MATCH('{query}')");
+        return result;
+    }
+    public RecipeSearchResult[] SearchRecipes(string query)
+    {
+        var data = Search(query, "RecipesIndex", new string[]{"RecipeId", "Label"});
         return data.Select(x => new RecipeSearchResult((string)x[0], (string)x[1])).ToArray();
     }
 }
