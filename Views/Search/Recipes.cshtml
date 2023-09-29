@@ -1,7 +1,65 @@
 @model RecipesSearchModel
-<ul>
-    @foreach (var item in Model.SearchResults)
-    {
-        <li>@item.Label</li>
+<style>
+    .recipe-table {
+        width: 100%; /* Задайте ширину таблицы по вашему усмотрению */
     }
+
+    .recipe-cell {
+        width: 50%; /* Задайте ширину ячейки по вашему усмотрению */
+    }
+
+    .recipe-image {
+        max-width: 400px; /* Изображение будет масштабироваться до максимальной ширины контейнера */
+        height: auto; /* Сохраняет соотношение сторон изображения */
+        display: block; /* Убирает пробелы между изображением и окружающими элементами */
+        margin: 0 auto; /* Выравнивает изображение по центру внутри ячейки */
+    }
+
+    .center-text {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<ul>
+    <table class="recipe-table">
+    @foreach (var recipe in Model.SearchResults)
+    {
+        string recipeUrl = $"/Recipe/Show?id={recipe.RecipeId.ToString()}";
+        <tr>
+            <td class="recipe-cell">
+                <img src="@Url.Content(Model.RecipeIdsToLabelImageIds[new Guid(recipe.RecipeId)])" class="recipe-image"/>
+            </td>
+            <td class="center-text"><a href="@recipeUrl">@recipe.Label</a></td>
+        </tr>
+    }
+</table>
+<ul class="pagination">
+    @if(Model.CurrentPage <= 1)
+    {
+        <li><span class="button disabled">Предыдущая</span></li>
+    }
+    else
+    {
+        int pageNum = Model.CurrentPage - 1;
+        <li><a href="/Search/Recipes?query=@Model.Query&page=@pageNum" class="button">Предыдущая</a></li>
+    }
+    @for (int i = 1; i <= Model.TotalPages; i++)
+    {
+        string className = "";
+        if(i == Model.CurrentPage)
+            className = "page active";
+        else
+            className = "page";
+        <li><a href="/Search/Recipes?query=@Model.Query&page=@i" class="@className">@i</a></li>
+    }
+    @if(Model.CurrentPage >= Model.TotalPages)
+    {
+        <li><span class="button disabled">Следующая</span></li>
+    }
+    else
+    {
+        int pageNum = Model.CurrentPage + 1;
+        <li><a href="/Search/Recipes?query=@Model.Query&page=@pageNum" class="button">Следующая</a></li>
+    }
+</ul>
 </ul>

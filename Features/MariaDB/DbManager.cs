@@ -337,4 +337,12 @@ public class DbManager : IDBManager
             return (false, null!);
         }
     }
+    public (Guid RecipeId, Guid imageId)[] GetRecipeLabelImageIds(IEnumerable<Guid> recipeIds)
+    {
+        var recipeIdsToCheck = new HashSet<Guid>(recipeIds);
+        var result = _dbContext.Recipes.Where(x => recipeIdsToCheck.Contains(x.Id))
+            .Select<RecipeDataModel, (Guid RecipeId, Guid imageId)>(x => new(x.Id, x.LabelImage))
+            .ToArray();
+        return result;
+    }
 }
